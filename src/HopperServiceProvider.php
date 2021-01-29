@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Nedwors\Hopper\Contracts\Engine;
 use Nedwors\Hopper\Contracts\Filer;
 use Nedwors\Hopper\Engines\SqliteEngine;
+use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Filers\JsonFiler;
 
 class HopperServiceProvider extends ServiceProvider
@@ -45,6 +46,10 @@ class HopperServiceProvider extends ServiceProvider
 
             // Registering package commands.
             // $this->commands([]);
+
+            if (config('app.env') !== "production" && env("APP_KEY")) {
+                Hop::boot();
+            }
         }
     }
 

@@ -16,6 +16,10 @@ class JsonFiler implements Filer
 
     public function currentHop(): ?string
     {
+        if (!File::exists(self::JSON_PATH)) {
+            return null;
+        }
+
         return data_get(json_decode(File::get(self::JSON_PATH), true), 'current');
     }
 }
