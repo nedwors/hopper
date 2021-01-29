@@ -4,7 +4,7 @@ namespace Nedwors\Hopper\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class Hopper extends Facade
+class Hop extends Facade
 {
     protected static function getFacadeAccessor()
     {

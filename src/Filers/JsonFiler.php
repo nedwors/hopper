@@ -1,6 +1,6 @@
 <?php
 
-namespace Nedwors\Hopper\Filer;
+namespace Nedwors\Hopper\Filers;
 
 use Illuminate\Support\Facades\File;
 use Nedwors\Hopper\Contracts\Filer;

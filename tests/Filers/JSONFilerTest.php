@@ -1,9 +1,9 @@
 <?php
 
-namespace Nedwors\Hopper\Tests\Filer;
+namespace Nedwors\Hopper\Tests\Filers;
 
 use Illuminate\Support\Facades\File;
-use Nedwors\Hopper\Filer\JsonFiler;
+use Nedwors\Hopper\Filers\JsonFiler;
 use Nedwors\Hopper\Interfaces\Filer;
 use Nedwors\Hopper\Tests\TestCase;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Nedwors\Hopper\Crafter;
+namespace Nedwors\Hopper\Crafters;
 
 use Illuminate\Support\Facades\File;
 use Nedwors\Hopper\Contracts\Crafter;

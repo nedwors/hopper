@@ -1,10 +1,10 @@
 <?php
 
-namespace Nedwors\Hopper\Tests\Crafter;
+namespace Nedwors\Hopper\Tests\Crafters;
 
 use Illuminate\Support\Facades\File;
 use Nedwors\Hopper\Contracts\Crafter;
-use Nedwors\Hopper\Crafter\SqliteCrafter;
+use Nedwors\Hopper\Crafters\SqliteCrafter;
 use Nedwors\Hopper\Tests\TestCase;
 
 class SqliteCrafterTest extends TestCase
