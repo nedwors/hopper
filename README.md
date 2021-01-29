@@ -1,5 +1,6 @@
 # Very short description of the package
 
+![Tests](https://github.com/nedwors/hopper/workflows/Tests/badge.svg)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/nedwors/hopper.svg?style=flat-square)](https://packagist.org/packages/nedwors/hopper)
 [![Build Status](https://img.shields.io/travis/nedwors/hopper/master.svg?style=flat-square)](https://travis-ci.org/nedwors/hopper)
 [![Quality Score](https://img.shields.io/scrutinizer/g/nedwors/hopper.svg?style=flat-square)](https://scrutinizer-ci.com/g/nedwors/hopper)
