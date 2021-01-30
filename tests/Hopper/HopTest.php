@@ -13,6 +13,8 @@ class HopTest extends TestCase
     /** @test */
     public function calling_hop_will_ask_the_databaseEngine_to_use_the_given_database()
     {
+        $this->mock(Filer::class);
+
         $this->mock(Engine::class)
             ->shouldReceive('use')
             ->once()
