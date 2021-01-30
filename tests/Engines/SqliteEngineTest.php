@@ -34,8 +34,6 @@ class SqliteEngineTest extends TestCase
                 return true;
             });
 
-        // $this->mock(Filer::class)->shouldReceive('setCurrentHop');
-
         app(SqliteEngine::class)->use('foobar');
     }
 
@@ -153,5 +151,47 @@ class SqliteEngineTest extends TestCase
         $database = app(SqliteEngine::class)->current();
 
         expect($database)->toBeNull();
+    }
+
+    /** @test */
+    public function calling_use_with_the_configured_default_database_name_will_not_create_a_database()
+    {
+        Config::set('hopper.default-database', 'database');
+
+        $this->mock(Filer::class)
+            ->shouldReceive('setCurrentHop');
+
+        File::partialMock()
+            ->shouldNotReceive('put');
+
+        app(SqliteEngine::class)->use('database');
+    }
+
+    /** @test */
+    public function calling_delete_with_the_configured_default_database_name_will_not_delete_the_database()
+    {
+        Config::set('hopper.default-database', 'database');
+
+        File::partialMock()
+            ->shouldNotReceive('delete');
+
+        app(SqliteEngine::class)->delete('database');
+    }
+
+    /** @test */
+    public function the_default_database_is_returned_with_current_without_the_directory_as_it_is_in_the_root_of_the_database_path()
+    {
+        Config::set('hopper.default-database', 'database');
+
+        $this->mock(Filer::class)
+            ->shouldReceive('currentHop')
+            ->once()
+            ->andReturn('database');
+
+        $database = app(SqliteEngine::class)->current();
+
+        expect($database)->toBeInstanceOf(Database::class);
+        expect($database->name)->toEqual('database');
+        expect($database->db_database)->toEqual(database_path("database.sqlite"));
     }
 }

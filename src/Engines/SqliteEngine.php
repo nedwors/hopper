@@ -21,13 +21,29 @@ class SqliteEngine implements Engine
 
     public function use(string $database)
     {
-        $fileName = $this->normalize($database);
-
-        if (!$this->exists($fileName)) {
-            File::put($fileName, '');
-        }
+        $this->createIfNeeded($database);
 
         $this->filer->setCurrentHop($database);
+    }
+
+    protected function createIfNeeded($database)
+    {
+        if ($this->isDefault($database)) {
+            return;
+        }
+
+        $fileName = $this->normalize($database);
+
+        if ($this->exists($fileName)) {
+            return;
+        }
+
+        File::put($fileName, '');
+    }
+
+    protected function isDefault($database)
+    {
+        return $database == config('hopper.default-database');
     }
 
     public function current(): ?Database
@@ -46,12 +62,20 @@ class SqliteEngine implements Engine
 
     public function delete(string $database): bool
     {
+        if ($this->isDefault($database)) {
+            return false;
+        }
+
         return File::delete($this->normalize($database));
     }
 
     protected function normalize(string $database): string
     {
-        return database_path($this->databasePath . Str::finish($database, '.sqlite'));
+        if (!$this->isDefault($database)) {
+            $database = $this->databasePath . $database;
+        }
+
+        return database_path(Str::finish($database, '.sqlite'));
     }
 
     public function connection(): string
