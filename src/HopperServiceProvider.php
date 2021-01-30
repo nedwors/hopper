@@ -4,6 +4,7 @@ namespace Nedwors\Hopper;
 
 use Illuminate\Support\ServiceProvider;
 use Nedwors\Hopper\Console\CurrentCommand;
+use Nedwors\Hopper\Console\DeleteCommand;
 use Nedwors\Hopper\Contracts\Engine;
 use Nedwors\Hopper\Contracts\Filer;
 use Nedwors\Hopper\Engines\SqliteEngine;
@@ -46,7 +47,8 @@ class HopperServiceProvider extends ServiceProvider
             ], 'lang');*/
 
             $this->commands([
-                CurrentCommand::class
+                CurrentCommand::class,
+                DeleteCommand::class
             ]);
 
             if (config('app.env') !== "production" && env("APP_KEY")) {

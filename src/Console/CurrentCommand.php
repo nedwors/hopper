@@ -9,7 +9,7 @@ class CurrentCommand extends Command
 {
     protected $signature = 'hop:current';
 
-    protected $description = 'Show the current hopper database';
+    protected $description = 'Show the current hopper database connection';
 
     public function handle()
     {
