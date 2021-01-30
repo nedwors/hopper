@@ -73,7 +73,7 @@ class HopperServiceProvider extends ServiceProvider
 
         // Register the main class to use with the facade
         $this->app->singleton('hopper', function () {
-            return new Hopper(app(Engine::class), app(Filer::class));
+            return new Hopper(app(Engine::class));
         });
 
         $this->app->singleton('hopper-git', function () {

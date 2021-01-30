@@ -5,6 +5,7 @@ namespace Nedwors\Hopper\Tests\Hopper;
 use Illuminate\Support\Facades\Config;
 use Nedwors\Hopper\Contracts\Engine;
 use Nedwors\Hopper\Contracts\Filer;
+use Nedwors\Hopper\Database;
 use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Tests\TestCase;
 
@@ -14,17 +15,17 @@ class BootTest extends TestCase
      * @dataProvider databaseDriverDataProvider
      * @test
      * */
-    public function calling_boot_will_set_the_database_config_database_to_the_current_hop_for_the_configured_database_driver($driver, $database)
+    public function calling_boot_will_set_the_database_config_database_to_the_current_hop_for_the_configured_database_driver($driver, $name, $databaseFile)
     {
         putenv("APP_KEY=1234");
 
-        $database = is_callable($database) ? $database() : $database;
+        $database = is_callable($databaseFile) ? $databaseFile() : $databaseFile;
 
         $this->mock(Filer::class)->shouldReceive('currentHop')->andReturn('foobar');
 
         $this->mock(Engine::class)
-            ->shouldReceive('normalize')
-            ->andReturn($database)
+            ->shouldReceive('current')
+            ->andReturn(new Database($name, $database))
             ->shouldReceive('connection')
             ->andReturn($driver);
 
@@ -40,7 +41,7 @@ class BootTest extends TestCase
         Config::set('app.env', 'production');
 
         $this->mock(Engine::class)
-            ->shouldNotReceive('normalize')
+            ->shouldNotReceive('current')
             ->shouldNotReceive('connection');
 
         Hop::boot();
@@ -56,7 +57,7 @@ class BootTest extends TestCase
             ->andReturn(null);
 
         $this->mock(Engine::class)
-            ->shouldNotReceive('normalize')
+            ->shouldNotReceive('current')
             ->shouldNotReceive('connection');
 
         Hop::boot();
@@ -68,7 +69,7 @@ class BootTest extends TestCase
         putenv("APP_KEY=");
 
         $this->mock(Engine::class)
-            ->shouldNotReceive('normalize')
+            ->shouldNotReceive('current')
             ->shouldNotReceive('connection');
 
         Hop::boot();
@@ -77,7 +78,7 @@ class BootTest extends TestCase
     public function databaseDriverDataProvider()
     {
         return [
-            ['sqlite', fn() => database_path('foobar.sqlite')]
+            ['sqlite', 'foobar', fn() => database_path('foobar.sqlite')]
         ];
     }
 }

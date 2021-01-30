@@ -15,6 +15,4 @@ interface Engine
     public function current(): ?Database;
 
     public function connection(): string;
-
-    public function normalize(string $database): string;
 }

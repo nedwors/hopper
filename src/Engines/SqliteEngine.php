@@ -49,7 +49,7 @@ class SqliteEngine implements Engine
         return File::delete($this->normalize($database));
     }
 
-    public function normalize(string $database): string
+    protected function normalize(string $database): string
     {
         return database_path($this->databasePath . Str::finish($database, '.sqlite'));
     }
