@@ -2,6 +2,7 @@
 
 namespace Nedwors\Hopper\Tests\Engines;
 
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Nedwors\Hopper\Contracts\Engine;
 use Nedwors\Hopper\Engines\SqliteEngine;
@@ -9,21 +10,24 @@ use Nedwors\Hopper\Tests\TestCase;
 
 class SqliteEngineTest extends TestCase
 {
+    protected $databasePath = 'hopper';
+
     protected function setUp(): void
     {
         parent::setUp();
 
+        Config::set('hopper.path', $this->databasePath);
         $this->swap(Engine::class, app(SqliteEngine::class));
     }
 
     /** @test */
-    public function use_will_create_a_new_sqlite_database_at_the_database_path()
+    public function use_will_create_a_new_sqlite_database_at_the_database_path_in_the_configured_hopper_directory()
     {
         File::partialMock()
             ->shouldReceive('put')
             ->once()
             ->withArgs(function ($database, $contents) {
-                expect($database)->toEqual(database_path('foobar.sqlite'));
+                expect($database)->toEqual(database_path("{$this->databasePath}/foobar.sqlite"));
                 expect($contents)->toEqual('');
                 return true;
             });
@@ -38,7 +42,7 @@ class SqliteEngineTest extends TestCase
             ->shouldReceive('exists')
             ->once()
             ->withArgs(function ($database) {
-                expect($database)->toEqual(database_path('foobar.sqlite'));
+                expect($database)->toEqual(database_path("{$this->databasePath}/foobar.sqlite"));
                 return true;
             })
             ->andReturn($exists = rand(1, 2) == 1);
@@ -65,7 +69,7 @@ class SqliteEngineTest extends TestCase
             ->shouldReceive('delete')
             ->once()
             ->withArgs(function ($database) {
-                expect($database)->toEqual(database_path('foobar.sqlite'));
+                expect($database)->toEqual(database_path("{$this->databasePath}/foobar.sqlite"));
                 return true;
             })
             ->andReturn(true);
@@ -80,7 +84,7 @@ class SqliteEngineTest extends TestCase
             ->shouldReceive('delete')
             ->once()
             ->withArgs(function ($database) {
-                expect($database)->toEqual(database_path('foobar.sqlite'));
+                expect($database)->toEqual(database_path("{$this->databasePath}/foobar.sqlite"));
                 return true;
             })
             ->andReturn($deleted = rand(1, 2) == 1);
