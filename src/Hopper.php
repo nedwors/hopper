@@ -25,6 +25,11 @@ class Hopper
         }, null, false);
     }
 
+    public function current()
+    {
+        return $this->filer->currentHop();
+    }
+
     public function boot()
     {
         if (!$this->canBoot()) {
