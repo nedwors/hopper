@@ -8,7 +8,7 @@ use Nedwors\Hopper\Contracts\Filer;
 use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Tests\TestCase;
 
-class HopTest extends TestCase
+class ToTest extends TestCase
 {
     /** @test */
     public function calling_hop_will_ask_the_databaseEngine_to_use_the_given_database()
