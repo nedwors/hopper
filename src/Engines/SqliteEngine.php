@@ -8,6 +8,13 @@ use Illuminate\Support\Str;
 
 class SqliteEngine implements Engine
 {
+    protected $databasePath;
+
+    public function __construct()
+    {
+        $this->databasePath = Str::finish(config('hopper.path'), '/');
+    }
+
     public function use(string $database)
     {
         $database = $this->normalize($database);
@@ -31,7 +38,7 @@ class SqliteEngine implements Engine
 
     public function normalize(string $database): string
     {
-        return database_path(Str::finish($database, '.sqlite'));
+        return database_path($this->databasePath . Str::finish($database, '.sqlite'));
     }
 
     public function connection(): string

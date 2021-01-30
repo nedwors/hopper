@@ -2,8 +2,7 @@
 
 namespace Nedwors\Hopper\Tests\Git;
 
-use Illuminate\Support\Facades\Config;
-use Nedwors\Hopper\Git\Git;
+use Nedwors\Hopper\Facades\Git;
 use Nedwors\Hopper\Tests\TestCase;
 
 class GitTest extends TestCase
@@ -17,21 +16,5 @@ class GitTest extends TestCase
         $branch = Git::current();
 
         expect($branch)->toEqual($actualBranch);
-    }
-
-    /** @test */
-    public function default_will_return_the_configured_default_branch_name()
-    {
-        Config::set('hopper.default-branch', 'main');
-
-        expect(Git::default())->toEqual('main');
-    }
-
-    /** @test */
-    public function if_the_setting_is_null_null_is_returned()
-    {
-        Config::set('hopper.default-branch', null);
-
-        expect(Git::default())->toBeNull();
     }
 }

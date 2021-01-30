@@ -4,11 +4,14 @@ namespace Nedwors\Hopper;
 
 use Illuminate\Support\ServiceProvider;
 use Nedwors\Hopper\Console\CurrentCommand;
+use Nedwors\Hopper\Console\DeleteCommand;
+use Nedwors\Hopper\Console\HopCommand;
 use Nedwors\Hopper\Contracts\Engine;
 use Nedwors\Hopper\Contracts\Filer;
 use Nedwors\Hopper\Engines\SqliteEngine;
 use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Filers\JsonFiler;
+use Nedwors\Hopper\Git\Git;
 
 class HopperServiceProvider extends ServiceProvider
 {
@@ -46,7 +49,9 @@ class HopperServiceProvider extends ServiceProvider
             ], 'lang');*/
 
             $this->commands([
-                CurrentCommand::class
+                CurrentCommand::class,
+                DeleteCommand::class,
+                HopCommand::class
             ]);
 
             if (config('app.env') !== "production" && env("APP_KEY")) {
@@ -69,6 +74,10 @@ class HopperServiceProvider extends ServiceProvider
         // Register the main class to use with the facade
         $this->app->singleton('hopper', function () {
             return new Hopper(app(Engine::class), app(Filer::class));
+        });
+
+        $this->app->singleton('hopper-git', function () {
+            return new Git;
         });
 
     }
