@@ -10,10 +10,12 @@ use Nedwors\Hopper\Database;
 
 class SqliteEngine implements Engine
 {
+    protected Filer $filer;
     protected $databasePath;
 
-    public function __construct()
+    public function __construct(Filer $filer)
     {
+        $this->filer = $filer;
         $this->databasePath = Str::finish(config('hopper.path'), '/');
     }
 
@@ -25,12 +27,12 @@ class SqliteEngine implements Engine
             File::put($fileName, '');
         }
 
-        app(Filer::class)->setCurrentHop($database);
+        $this->filer->setCurrentHop($database);
     }
 
     public function current(): ?Database
     {
-        $database = app(Filer::class)->currentHop();
+        $database = $this->filer->currentHop();
 
         return $database
             ? new Database($database, $this->normalize($database))

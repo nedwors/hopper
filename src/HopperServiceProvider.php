@@ -68,8 +68,8 @@ class HopperServiceProvider extends ServiceProvider
         // Automatically apply the package configuration
         $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'hopper');
 
-        $this->app->bind(Engine::class, SqliteEngine::class);
         $this->app->bind(Filer::class, JsonFiler::class);
+        $this->app->bind(Engine::class, SqliteEngine::class);
 
         // Register the main class to use with the facade
         $this->app->singleton('hopper', function () {

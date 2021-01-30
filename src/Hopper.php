@@ -24,9 +24,9 @@ class Hopper
         }, null, false);
     }
 
-    public function current(): ?string
+    public function current(): ?Database
     {
-        return $this->filer->currentHop();
+        return $this->engine->current();
     }
 
     public function delete(string $database): bool

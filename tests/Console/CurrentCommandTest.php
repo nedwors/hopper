@@ -3,6 +3,7 @@
 namespace Nedwors\Hopper\Tests\Console;
 
 use Nedwors\Hopper\Contracts\Filer;
+use Nedwors\Hopper\Database;
 use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Tests\TestCase;
 
@@ -13,7 +14,7 @@ class CurrentCommandTest extends TestCase
     {
         Hop::shouldReceive('current')
             ->once()
-            ->andReturn('foobar');
+            ->andReturn(new Database('foobar', ''));
 
         $this->artisan('hop:current')
              ->expectsOutput('foobar');

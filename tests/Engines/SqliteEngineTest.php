@@ -19,7 +19,6 @@ class SqliteEngineTest extends TestCase
         parent::setUp();
 
         Config::set('hopper.path', $this->databasePath);
-        $this->swap(Engine::class, app(SqliteEngine::class));
         $this->mock(Filer::class)->shouldReceive('setCurrentHop');
     }
 
@@ -35,7 +34,9 @@ class SqliteEngineTest extends TestCase
                 return true;
             });
 
-        app(Engine::class)->use('foobar');
+        // $this->mock(Filer::class)->shouldReceive('setCurrentHop');
+
+        app(SqliteEngine::class)->use('foobar');
     }
 
     /** @test */
@@ -49,7 +50,7 @@ class SqliteEngineTest extends TestCase
         File::partialMock()
             ->shouldReceive('put');
 
-        app(Engine::class)->use('foobar');
+        app(SqliteEngine::class)->use('foobar');
     }
 
     /** @test */
@@ -65,7 +66,7 @@ class SqliteEngineTest extends TestCase
             ->andReturn(true)
             ->shouldNotReceive('put');
 
-        app(Engine::class)->use('foobar');
+        app(SqliteEngine::class)->use('foobar');
     }
 
     /** @test */
@@ -80,7 +81,7 @@ class SqliteEngineTest extends TestCase
             })
             ->andReturn($exists = rand(1, 2) == 1);
 
-        expect(app(Engine::class)->exists('foobar'))->toEqual($exists);
+        expect(app(SqliteEngine::class)->exists('foobar'))->toEqual($exists);
     }
 
     /** @test */
@@ -90,9 +91,10 @@ class SqliteEngineTest extends TestCase
             ->shouldReceive('exists')
             ->once()
             ->andReturn(true)
-            ->shouldNotReceive('put');
+            ->shouldNotReceive('put')
+            ->withArgs(fn($database) => $database == database_path("{$this->databasePath}/foobar.sqlite"));
 
-        app(Engine::class)->use('foobar');
+        app(SqliteEngine::class)->use('foobar');
     }
 
     /** @test */
@@ -107,7 +109,7 @@ class SqliteEngineTest extends TestCase
             })
             ->andReturn(true);
 
-        app(Engine::class)->delete('foobar');
+        app(SqliteEngine::class)->delete('foobar');
     }
 
     /** @test */
@@ -122,7 +124,7 @@ class SqliteEngineTest extends TestCase
             })
             ->andReturn($deleted = rand(1, 2) == 1);
 
-        expect(app(Engine::class)->delete('foobar'))->toEqual($deleted);
+        expect(app(SqliteEngine::class)->delete('foobar'))->toEqual($deleted);
     }
 
     /** @test */
@@ -133,7 +135,7 @@ class SqliteEngineTest extends TestCase
             ->once()
             ->andReturn('hello-world');
 
-        $database = app(Engine::class)->current();
+        $database = app(SqliteEngine::class)->current();
 
         expect($database)->toBeInstanceOf(Database::class);
         expect($database->name)->toEqual('hello-world');
@@ -148,7 +150,7 @@ class SqliteEngineTest extends TestCase
             ->once()
             ->andReturn(null);
 
-        $database = app(Engine::class)->current();
+        $database = app(SqliteEngine::class)->current();
 
         expect($database)->toBeNull();
     }
