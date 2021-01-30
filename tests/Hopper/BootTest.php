@@ -34,47 +34,24 @@ class BootTest extends TestCase
         expect(config("database.connections.$driver.database"))->toEqual($database);
     }
 
-    /**
-     * @dataProvider databaseDriverDataProvider
-     * @test
-     * */
-    public function calling_boot_will_purge_the_DB_facade($driver, $database)
-    {
-        $database = is_callable($database) ? $database() : $database;
-
-        $this->mock(Filer::class)->shouldReceive('currentHop')->andReturn('foobar');
-
-        $this->mock(Engine::class)
-            ->shouldReceive('normalize')
-            ->andReturn($database)
-            ->shouldReceive('connection')
-            ->andReturn($driver);
-
-        DB::partialMock()
-            ->shouldReceive('purge')
-            ->once();
-
-        Hop::boot();
-    }
-
     /** @test */
-    public function the_config_will_not_be_overriden_and_the_db_not_purged_if_the_environment_is_production()
+    public function the_config_will_not_be_overriden_if_the_environment_is_production()
     {
+        putenv("APP_KEY=1234");
         Config::set('app.env', 'production');
 
         $this->mock(Engine::class)
             ->shouldNotReceive('normalize')
             ->shouldNotReceive('connection');
 
-        DB::partialMock()
-            ->shouldNotReceive('purge');
-
         Hop::boot();
     }
 
     /** @test */
-    public function if_the_filer_returns_no_currentHop_the_DB_is_not_purged_and_the_connection_not_updated()
+    public function if_the_filer_returns_no_currentHop_the_connection_is_not_updated()
     {
+        putenv("APP_KEY=1234");
+
         $this->mock(Filer::class)
             ->shouldReceive('currentHop')
             ->andReturn(null);
@@ -94,9 +71,6 @@ class BootTest extends TestCase
         $this->mock(Engine::class)
             ->shouldNotReceive('normalize')
             ->shouldNotReceive('connection');
-
-        DB::partialMock()
-            ->shouldNotReceive('purge');
 
         Hop::boot();
     }

@@ -36,7 +36,6 @@ class Hopper
             return;
         }
 
-        DB::purge();
         Config::set(
             "database.connections.{$this->engine->connection()}.database",
             env('DB_DATABASE', $this->engine->normalize($current))
