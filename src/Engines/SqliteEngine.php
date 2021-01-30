@@ -1,14 +1,14 @@
 <?php
 
-namespace Nedwors\Hopper\Crafter;
+namespace Nedwors\Hopper\Engines;
 
 use Illuminate\Support\Facades\File;
-use Nedwors\Hopper\Contracts\Crafter;
+use Nedwors\Hopper\Contracts\Engine;
 use Illuminate\Support\Str;
 
-class SqliteCrafter implements Crafter
+class SqliteEngine implements Engine
 {
-    public function create(string $database)
+    public function use(string $database)
     {
         $database = $this->normalize($database);
 
@@ -29,8 +29,13 @@ class SqliteCrafter implements Crafter
         return File::delete($this->normalize($database));
     }
 
-    protected function normalize($database)
+    public function normalize(string $database): string
     {
         return database_path(Str::finish($database, '.sqlite'));
+    }
+
+    public function connection(): string
+    {
+        return 'sqlite';
     }
 }

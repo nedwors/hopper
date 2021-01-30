@@ -3,6 +3,11 @@
 namespace Nedwors\Hopper;
 
 use Illuminate\Support\ServiceProvider;
+use Nedwors\Hopper\Contracts\Engine;
+use Nedwors\Hopper\Contracts\Filer;
+use Nedwors\Hopper\Engines\SqliteEngine;
+use Nedwors\Hopper\Facades\Hop;
+use Nedwors\Hopper\Filers\JsonFiler;
 
 class HopperServiceProvider extends ServiceProvider
 {
@@ -41,6 +46,10 @@ class HopperServiceProvider extends ServiceProvider
 
             // Registering package commands.
             // $this->commands([]);
+
+            if (config('app.env') !== "production" && env("APP_KEY")) {
+                Hop::boot();
+            }
         }
     }
 
@@ -52,9 +61,13 @@ class HopperServiceProvider extends ServiceProvider
         // Automatically apply the package configuration
         $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'hopper');
 
+        $this->app->bind(Engine::class, SqliteEngine::class);
+        $this->app->bind(Filer::class, JsonFiler::class);
+
         // Register the main class to use with the facade
         $this->app->singleton('hopper', function () {
-            return new Hopper;
+            return new Hopper(app(Engine::class), app(Filer::class));
         });
+
     }
 }
