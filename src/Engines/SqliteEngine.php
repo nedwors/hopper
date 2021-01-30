@@ -16,7 +16,7 @@ class SqliteEngine implements Engine
     public function __construct(Filer $filer)
     {
         $this->filer = $filer;
-        $this->databasePath = Str::finish(config('hopper.path'), '/');
+        $this->databasePath = Str::finish(config('hopper.drivers.sqlite.database-path'), '/');
     }
 
     public function use(string $database)

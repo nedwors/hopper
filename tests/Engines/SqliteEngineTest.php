@@ -18,7 +18,7 @@ class SqliteEngineTest extends TestCase
     {
         parent::setUp();
 
-        Config::set('hopper.path', $this->databasePath);
+        Config::set('hopper.drivers.sqlite.database-path', $this->databasePath);
         $this->mock(Filer::class)->shouldReceive('setCurrentHop');
     }
 
