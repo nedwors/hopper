@@ -3,7 +3,6 @@
 namespace Nedwors\Hopper;
 
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\DB;
 use Nedwors\Hopper\Contracts\Engine;
 use Nedwors\Hopper\Contracts\Filer;
 
@@ -23,7 +22,7 @@ class Hopper
         rescue(function () use ($database) {
             $this->engine->use($database);
             $this->filer->setCurrentHop($database);
-        });
+        }, null, false);
     }
 
     public function boot()

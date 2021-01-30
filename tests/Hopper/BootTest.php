@@ -3,7 +3,6 @@
 namespace Nedwors\Hopper\Tests\Hopper;
 
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\DB;
 use Nedwors\Hopper\Contracts\Engine;
 use Nedwors\Hopper\Contracts\Filer;
 use Nedwors\Hopper\Facades\Hop;
