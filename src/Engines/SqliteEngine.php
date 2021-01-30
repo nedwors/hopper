@@ -5,6 +5,8 @@ namespace Nedwors\Hopper\Engines;
 use Illuminate\Support\Facades\File;
 use Nedwors\Hopper\Contracts\Engine;
 use Illuminate\Support\Str;
+use Nedwors\Hopper\Contracts\Filer;
+use Nedwors\Hopper\Database;
 
 class SqliteEngine implements Engine
 {
@@ -17,13 +19,22 @@ class SqliteEngine implements Engine
 
     public function use(string $database)
     {
-        $database = $this->normalize($database);
+        $fileName = $this->normalize($database);
 
-        if ($this->exists($database)) {
-            return;
+        if (!$this->exists($fileName)) {
+            File::put($fileName, '');
         }
 
-        File::put($database, '');
+        app(Filer::class)->setCurrentHop($database);
+    }
+
+    public function current(): ?Database
+    {
+        $database = app(Filer::class)->currentHop();
+
+        return $database
+            ? new Database($database, $this->normalize($database))
+            : null;
     }
 
     public function exists(string $database): bool

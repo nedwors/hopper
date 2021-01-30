@@ -21,7 +21,6 @@ class Hopper
     {
         rescue(function () use ($database) {
             $this->engine->use($database);
-            $this->filer->setCurrentHop($database);
         }, null, false);
     }
 

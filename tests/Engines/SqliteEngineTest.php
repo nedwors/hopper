@@ -5,6 +5,8 @@ namespace Nedwors\Hopper\Tests\Engines;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Nedwors\Hopper\Contracts\Engine;
+use Nedwors\Hopper\Contracts\Filer;
+use Nedwors\Hopper\Database;
 use Nedwors\Hopper\Engines\SqliteEngine;
 use Nedwors\Hopper\Tests\TestCase;
 
@@ -18,6 +20,7 @@ class SqliteEngineTest extends TestCase
 
         Config::set('hopper.path', $this->databasePath);
         $this->swap(Engine::class, app(SqliteEngine::class));
+        $this->mock(Filer::class)->shouldReceive('setCurrentHop');
     }
 
     /** @test */
@@ -31,6 +34,36 @@ class SqliteEngineTest extends TestCase
                 expect($contents)->toEqual('');
                 return true;
             });
+
+        app(Engine::class)->use('foobar');
+    }
+
+    /** @test */
+    public function use_will_file_the_currentHop_by_its_name()
+    {
+        $this->mock(Filer::class)
+            ->shouldReceive('setCurrentHop')
+            ->once()
+            ->withArgs(['foobar']);
+
+        File::partialMock()
+            ->shouldReceive('put');
+
+        app(Engine::class)->use('foobar');
+    }
+
+    /** @test */
+    public function use_will_file_the_currentHop_even_if_the_database_is_not_created()
+    {
+        $this->mock(Filer::class)
+            ->shouldReceive('setCurrentHop')
+            ->once()
+            ->withArgs(['foobar']);
+
+        File::partialMock()
+            ->shouldReceive('exists')
+            ->andReturn(true)
+            ->shouldNotReceive('put');
 
         app(Engine::class)->use('foobar');
     }
@@ -90,5 +123,33 @@ class SqliteEngineTest extends TestCase
             ->andReturn($deleted = rand(1, 2) == 1);
 
         expect(app(Engine::class)->delete('foobar'))->toEqual($deleted);
+    }
+
+    /** @test */
+    public function current_returns_a_database_object_based_on_the_filer_current_database()
+    {
+        $this->mock(Filer::class)
+            ->shouldReceive('currentHop')
+            ->once()
+            ->andReturn('hello-world');
+
+        $database = app(Engine::class)->current();
+
+        expect($database)->toBeInstanceOf(Database::class);
+        expect($database->name)->toEqual('hello-world');
+        expect($database->db_database)->toEqual(database_path("{$this->databasePath}/hello-world.sqlite"));
+    }
+
+    /** @test */
+    public function current_returns_null_if_the_filer_returns_null()
+    {
+        $this->mock(Filer::class)
+            ->shouldReceive('currentHop')
+            ->once()
+            ->andReturn(null);
+
+        $database = app(Engine::class)->current();
+
+        expect($database)->toBeNull();
     }
 }
