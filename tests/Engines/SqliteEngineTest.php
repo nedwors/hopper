@@ -159,7 +159,9 @@ class SqliteEngineTest extends TestCase
         Config::set('hopper.default-database', 'database');
 
         $this->mock(Filer::class)
-            ->shouldReceive('setCurrentHop');
+            ->shouldReceive('setCurrentHop')
+            ->once()
+            ->withArgs(['database']);
 
         File::partialMock()
             ->shouldNotReceive('put');
@@ -193,5 +195,22 @@ class SqliteEngineTest extends TestCase
         expect($database)->toBeInstanceOf(Database::class);
         expect($database->name)->toEqual('database');
         expect($database->db_database)->toEqual(database_path("database.sqlite"));
+    }
+
+    /** @test */
+    public function if_the_database_to_be_used_is_the_configured_default_git_branch_the_configured_default_database_is_used()
+    {
+        Config::set('hopper.default-database', 'database');
+        Config::set('hopper.default-branch', 'staging');
+
+        $this->mock(Filer::class)
+            ->shouldReceive('setCurrentHop')
+            ->once()
+            ->withArgs(['database']);
+
+        File::partialMock()
+            ->shouldNotReceive('put');
+
+        app(SqliteEngine::class)->use('staging');
     }
 }

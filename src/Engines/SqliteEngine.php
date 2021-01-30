@@ -21,9 +21,24 @@ class SqliteEngine implements Engine
 
     public function use(string $database)
     {
+        $database = $this->lookupAlias($database);
+
         $this->createIfNeeded($database);
 
         $this->filer->setCurrentHop($database);
+    }
+
+    protected function lookupAlias($database)
+    {
+        if (!$gitBranch = config('hopper.default-branch')) {
+            return $database;
+        }
+
+        if ($database != $gitBranch) {
+            return $database;
+        }
+
+        return config('hopper.default-database');
     }
 
     protected function createIfNeeded($database)
