@@ -3,6 +3,7 @@
 namespace Nedwors\Hopper\Facades;
 
 use Illuminate\Support\Facades\Facade;
+
 /**
  * Class Hop
  * @package Nedwors\Hopper\Facades
