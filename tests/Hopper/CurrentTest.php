@@ -15,7 +15,7 @@ class CurrentTest extends TestCase
         $this->mock(Engine::class)
             ->shouldReceive('current')
             ->once()
-            ->andReturn(new Database('foobar', 'foobar.sqlite'));
+            ->andReturn(new Database('foobar', 'foobar.sqlite', 'sqlite'));
 
         $database = Hop::current();
         expect($database->name)->toEqual('foobar');

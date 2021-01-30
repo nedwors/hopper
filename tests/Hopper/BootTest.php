@@ -15,7 +15,7 @@ class BootTest extends TestCase
      * @dataProvider databaseDriverDataProvider
      * @test
      * */
-    public function calling_boot_will_set_the_database_config_database_to_the_current_hop_for_the_configured_database_driver($driver, $name, $databaseFile)
+    public function calling_boot_will_set_the_database_config_database_to_the_current_hop_for_the_configured_database_driver($connection, $name, $databaseFile)
     {
         putenv("APP_KEY=1234");
 
@@ -25,13 +25,11 @@ class BootTest extends TestCase
 
         $this->mock(Engine::class)
             ->shouldReceive('current')
-            ->andReturn(new Database($name, $database))
-            ->shouldReceive('connection')
-            ->andReturn($driver);
+            ->andReturn(new Database($name, $database, $connection));
 
         Hop::boot();
 
-        expect(config("database.connections.$driver.database"))->toEqual($database);
+        expect(config("database.connections.$connection.database"))->toEqual($database);
     }
 
     /** @test */
@@ -41,8 +39,7 @@ class BootTest extends TestCase
         Config::set('app.env', 'production');
 
         $this->mock(Engine::class)
-            ->shouldNotReceive('current')
-            ->shouldNotReceive('connection');
+            ->shouldNotReceive('current');
 
         Hop::boot();
     }
@@ -57,8 +54,7 @@ class BootTest extends TestCase
             ->andReturn(null);
 
         $this->mock(Engine::class)
-            ->shouldNotReceive('current')
-            ->shouldNotReceive('connection');
+            ->shouldNotReceive('current');
 
         Hop::boot();
     }
@@ -69,8 +65,7 @@ class BootTest extends TestCase
         putenv("APP_KEY=");
 
         $this->mock(Engine::class)
-            ->shouldNotReceive('current')
-            ->shouldNotReceive('connection');
+            ->shouldNotReceive('current');
 
         Hop::boot();
     }

@@ -42,7 +42,7 @@ class Hopper
         }
 
         Config::set(
-            "database.connections.{$this->engine->connection()}.database",
+            "database.connections.{$database->connection}.database",
             env('DB_DATABASE', $database->db_database)
         );
     }

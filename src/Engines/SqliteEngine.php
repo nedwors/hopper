@@ -66,7 +66,7 @@ class SqliteEngine implements Engine
         $database = $this->filer->currentHop();
 
         return $database
-            ? new Database($database, $this->normalize($database))
+            ? new Database($database, $this->normalize($database), 'sqlite')
             : null;
     }
 
@@ -91,10 +91,5 @@ class SqliteEngine implements Engine
         }
 
         return database_path(Str::finish($database, '.sqlite'));
-    }
-
-    public function connection(): string
-    {
-        return 'sqlite';
     }
 }

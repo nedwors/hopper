@@ -14,7 +14,7 @@ class CurrentCommandTest extends TestCase
     {
         Hop::shouldReceive('current')
             ->once()
-            ->andReturn(new Database('foobar', ''));
+            ->andReturn(new Database('foobar', '', 'sqlite'));
 
         $this->artisan('hop:current')
              ->expectsOutput('foobar');
