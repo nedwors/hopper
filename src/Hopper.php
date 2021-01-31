@@ -35,14 +35,7 @@ class Hopper
             return;
         }
 
-        if (!$database = $this->engine->current()) {
-            return;
-        }
-
-        Config::set(
-            "database.connections.{$database->connection}.database",
-            env('DB_DATABASE', $database->db_database)
-        );
+        $this->engine->boot();
     }
 
     protected function canBoot()

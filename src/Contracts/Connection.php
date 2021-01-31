@@ -13,4 +13,6 @@ interface Connection
     public function delete(string $name): bool;
 
     public function database(string $name): Database;
+
+    public function boot();
 }

@@ -204,4 +204,67 @@ class EngineTest extends TestCase
 
         app(Engine::class)->use('staging');
     }
+
+   /**
+     * @dataProvider databaseDriverDataProvider
+     * @test
+     * */
+    public function calling_boot_will_set_the_database_config_database_to_the_current_hop_for_the_configured_database_driver($connection, $name, $databaseFile)
+    {
+        $database = is_callable($databaseFile) ? $databaseFile() : $databaseFile;
+
+        $this->mock(Filer::class)
+            ->shouldReceive('currentHop')
+            ->once()
+            ->andReturn('foobar');
+
+        $this->mock(Connection::class)
+            ->shouldReceive('database')
+            ->once()
+            ->andReturn(new Database($name, $database, $connection))
+            ->shouldReceive('boot');
+
+        app(Engine::class)->boot();
+
+        expect(config("database.connections.$connection.database"))->toEqual($database);
+    }
+
+    /** @test */
+    public function when_the_engine_boots_it_asks_the_connection_to_boot()
+    {
+        $this->mock(Filer::class)
+            ->shouldReceive('currentHop')
+            ->andReturn('foobar');
+
+        $this->mock(Connection::class)
+            ->shouldReceive('database')
+            ->andReturn(new Database('foobar', 'db', 'foobar'))
+            ->shouldReceive('boot')
+            ->once();
+
+        app(Engine::class)->boot();
+    }
+
+    /** @test */
+    public function if_the_filer_returns_no_currentHop_the_connection_is_not_updated()
+    {
+        $this->mock(Filer::class)
+            ->shouldReceive('currentHop')
+            ->andReturn(null);
+
+        Config::partialMock()
+            ->shouldReceive('get')
+            ->withArgs(['app.env'])
+            ->andReturn('testing')
+            ->shouldNotReceive('set');
+
+        app(Engine::class)->boot();
+    }
+
+    public function databaseDriverDataProvider()
+    {
+        return [
+            ['sqlite', 'foobar', fn() => database_path('foobar.sqlite')]
+        ];
+    }
 }

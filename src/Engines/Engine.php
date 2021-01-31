@@ -2,6 +2,7 @@
 
 namespace Nedwors\Hopper\Engines;
 
+use Illuminate\Support\Facades\Config;
 use Nedwors\Hopper\Contracts;
 use Nedwors\Hopper\Contracts\Connection;
 use Nedwors\Hopper\Contracts\Filer;
@@ -94,5 +95,19 @@ class Engine implements Contracts\Engine
     protected function defaultDatabase()
     {
         return config('hopper.default-database');
+    }
+
+    public function boot()
+    {
+        $this->connection->boot();
+
+        if (!$database = $this->current()) {
+            return;
+        }
+
+        Config::set(
+            "database.connections.{$database->connection}.database",
+            env('DB_DATABASE', $database->db_database)
+        );
     }
 }

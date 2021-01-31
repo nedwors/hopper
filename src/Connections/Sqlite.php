@@ -57,4 +57,9 @@ class Sqlite implements Connection
     {
         return $name === config('hopper.default-database');
     }
+
+    public function boot()
+    {
+        # code...
+    }
 }
