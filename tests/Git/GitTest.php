@@ -11,7 +11,7 @@ class GitTest extends TestCase
     public function current_will_return_the_current_git_branch()
     {
         exec('git branch --show-current', $output);
-        $actualBranch = $output[0];
+        $actualBranch = data_get($output, 0);
 
         $branch = Git::current();
 
