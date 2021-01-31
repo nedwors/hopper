@@ -2,6 +2,7 @@
 
 namespace Nedwors\Hopper;
 
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 use Nedwors\Hopper\Console\CurrentCommand;
 use Nedwors\Hopper\Console\DeleteCommand;
@@ -15,9 +16,19 @@ use Nedwors\Hopper\Git\Git;
 
 class HopperServiceProvider extends ServiceProvider
 {
-    /**
-     * Bootstrap the application services.
-     */
+    public function register()
+    {
+        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'hopper');
+
+        $this->app->bind(Filer::class, JsonFiler::class);
+
+        $driver = config('hopper.driver');
+        $this->app->bind(Engine::class, config("hopper.drivers.$driver.engine"));
+
+        $this->app->singleton('hopper', fn() => new Hopper(app(Engine::class)));
+        $this->app->singleton('hopper-git', fn() => new Git);
+    }
+
     public function boot()
     {
         /*
@@ -27,6 +38,10 @@ class HopperServiceProvider extends ServiceProvider
         // $this->loadViewsFrom(__DIR__.'/../resources/views', 'hopper');
         // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
+
+        if (!File::exists(database_path(config('hopper.drivers.sqlite.database-path')))) {
+            File::makeDirectory(database_path(config('hopper.drivers.sqlite.database-path')));
+        }
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
@@ -58,27 +73,5 @@ class HopperServiceProvider extends ServiceProvider
                 Hop::boot();
             }
         }
-    }
-
-    /**
-     * Register the application services.
-     */
-    public function register()
-    {
-        // Automatically apply the package configuration
-        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'hopper');
-
-        $this->app->bind(Engine::class, SqliteEngine::class);
-        $this->app->bind(Filer::class, JsonFiler::class);
-
-        // Register the main class to use with the facade
-        $this->app->singleton('hopper', function () {
-            return new Hopper(app(Engine::class), app(Filer::class));
-        });
-
-        $this->app->singleton('hopper-git', function () {
-            return new Git;
-        });
-
     }
 }

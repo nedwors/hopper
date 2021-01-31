@@ -4,30 +4,24 @@ namespace Nedwors\Hopper;
 
 use Illuminate\Support\Facades\Config;
 use Nedwors\Hopper\Contracts\Engine;
-use Nedwors\Hopper\Contracts\Filer;
 
 class Hopper
 {
     protected Engine $engine;
-    protected Filer $filer;
 
-    public function __construct(Engine $engine, Filer $filer)
+    public function __construct(Engine $engine)
     {
         $this->engine = $engine;
-        $this->filer = $filer;
     }
 
     public function to(string $database)
     {
-        rescue(function () use ($database) {
-            $this->engine->use($database);
-            $this->filer->setCurrentHop($database);
-        }, null, false);
+        $this->engine->use($database);
     }
 
-    public function current(): ?string
+    public function current(): ?Database
     {
-        return $this->filer->currentHop();
+        return $this->engine->current();
     }
 
     public function delete(string $database): bool
@@ -41,13 +35,13 @@ class Hopper
             return;
         }
 
-        if (!$current = $this->filer->currentHop()) {
+        if (!$database = $this->engine->current()) {
             return;
         }
 
         Config::set(
-            "database.connections.{$this->engine->connection()}.database",
-            env('DB_DATABASE', $this->engine->normalize($current))
+            "database.connections.{$database->connection}.database",
+            env('DB_DATABASE', $database->db_database)
         );
     }
 

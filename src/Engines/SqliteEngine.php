@@ -5,44 +5,96 @@ namespace Nedwors\Hopper\Engines;
 use Illuminate\Support\Facades\File;
 use Nedwors\Hopper\Contracts\Engine;
 use Illuminate\Support\Str;
+use Nedwors\Hopper\Contracts\Filer;
+use Nedwors\Hopper\Database;
 
 class SqliteEngine implements Engine
 {
-    protected $databasePath;
+    protected Filer $filer;
 
-    public function __construct()
+    public function __construct(Filer $filer)
     {
-        $this->databasePath = Str::finish(config('hopper.path'), '/');
+        $this->filer = $filer;
     }
 
     public function use(string $database)
     {
-        $database = $this->normalize($database);
+        $database = $this->isAlias($database)
+                        ? config('hopper.default-database')
+                        : $database;
 
-        if ($this->exists($database)) {
+        $this->createIfNeeded($database);
+
+        $this->filer->setCurrentHop($database);
+    }
+
+    protected function isAlias($database)
+    {
+        if (!$gitBranch = config('hopper.default-branch')) {
+            return false;
+        }
+
+        if ($database != $gitBranch) {
+            return false;
+        }
+
+        return true;
+    }
+
+    protected function createIfNeeded($database)
+    {
+        if ($this->isDefault($database)) {
             return;
         }
 
-        File::put($database, '');
+        $fileName = $this->toFilePath($database);
+
+        if ($this->exists($fileName)) {
+            return;
+        }
+
+        File::put($fileName, '');
+    }
+
+    protected function isDefault($database)
+    {
+        return $database == config('hopper.default-database');
+    }
+
+    public function current(): ?Database
+    {
+        $database = $this->filer->currentHop();
+
+        return $database
+            ? new Database($database, $this->toFilePath($database), 'sqlite')
+            : null;
     }
 
     public function exists(string $database): bool
     {
-        return File::exists($this->normalize($database));
+        return File::exists($this->toFilePath($database));
     }
 
     public function delete(string $database): bool
     {
-        return File::delete($this->normalize($database));
+        if ($this->isDefault($database)) {
+            return false;
+        }
+
+        return File::delete($this->toFilePath($database));
     }
 
-    public function normalize(string $database): string
+    protected function toFilePath(string $database): string
     {
-        return database_path($this->databasePath . Str::finish($database, '.sqlite'));
+        if (!$this->isDefault($database)) {
+            $database = $this->applyDatabasePath($database);
+        }
+
+        return database_path(Str::finish($database, '.sqlite'));
     }
 
-    public function connection(): string
+    protected function applyDatabasePath($database)
     {
-        return 'sqlite';
+        return Str::finish(config('hopper.drivers.sqlite.database-path'), '/') . $database;
     }
 }

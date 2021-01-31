@@ -13,6 +13,8 @@ class CurrentCommand extends Command
 
     public function handle()
     {
-        $this->info(Hop::current() ?? 'There is no current hopper db...');
+        $current = Hop::current();
+
+        $this->info($current ? "Currently using <fg=yellow>$current->name</>" :  'There is no current hopper db...');
     }
 }

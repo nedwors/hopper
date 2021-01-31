@@ -2,6 +2,8 @@
 
 namespace Nedwors\Hopper\Contracts;
 
+use Nedwors\Hopper\Database;
+
 interface Engine
 {
     public function use(string $database);
@@ -10,7 +12,5 @@ interface Engine
 
     public function delete(string $database): bool;
 
-    public function connection(): string;
-
-    public function normalize(string $database): string;
+    public function current(): ?Database;
 }

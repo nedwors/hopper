@@ -16,6 +16,10 @@ class HopCommand extends Command
     {
         $database = $this->argument('database') ?? Git::current();
 
+        if (!$database) {
+            return $this->warn('Please hop on a git branch or provide a database name');
+        }
+
         Hop::to($database);
         $this->info("Hopped to $database");
     }

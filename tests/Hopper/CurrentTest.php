@@ -2,20 +2,34 @@
 
 namespace Nedwors\Hopper\Tests\Hopper;
 
-use Nedwors\Hopper\Contracts\Filer;
+use Nedwors\Hopper\Contracts\Engine;
+use Nedwors\Hopper\Database;
 use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Tests\TestCase;
 
 class CurrentTest extends TestCase
 {
     /** @test */
-    public function it_accesses_the_filer_to_return_the_current_hop()
+    public function it_accesses_the_engine_to_return_the_current_database()
     {
-        $this->mock(Filer::class)
-            ->shouldReceive('currentHop')
+        $this->mock(Engine::class)
+            ->shouldReceive('current')
             ->once()
-            ->andReturn('foobar');
+            ->andReturn(new Database('foobar', 'foobar.sqlite', 'sqlite'));
 
-        expect(Hop::current())->toEqual('foobar');
+        $database = Hop::current();
+        expect($database->name)->toEqual('foobar');
+        expect($database->db_database)->toEqual('foobar.sqlite');
+    }
+
+    /** @test */
+    public function it_returns_null_if_the_engine_does()
+    {
+        $this->mock(Engine::class)
+            ->shouldReceive('current')
+            ->once()
+            ->andReturn(null);
+
+        expect(Hop::current())->toBeNull();
     }
 }
