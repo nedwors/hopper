@@ -5,7 +5,6 @@ namespace Nedwors\Hopper\Tests\Connections;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Nedwors\Hopper\Connections\Sqlite;
-use Nedwors\Hopper\Contracts\Connection;
 use Nedwors\Hopper\Database;
 use Nedwors\Hopper\Tests\TestCase;
 
@@ -17,7 +16,7 @@ class SqliteTest extends TestCase
     {
         parent::setUp();
 
-        Config::set('hopper.drivers.sqlite.database-path', $this->databasePath);
+        Config::set('hopper.connections.sqlite.database-path', $this->databasePath);
     }
 
     /** @test */
@@ -125,4 +124,25 @@ class SqliteTest extends TestCase
         expect($database->name)->toEqual('database');
         expect($database->db_database)->toEqual(database_path("database.sqlite"));
     }
+
+    /** @test */
+    public function when_it_boots_the_configured_hopper_directory_is_created_if_it_doesnt_exist()
+    {
+        Config::set('hopper.connections.sqlite.datbase-path', 'hopper/');
+
+        File::partialMock()
+            ->shouldReceive('exists')
+            ->once()
+            ->withArgs([database_path('hopper/')])
+            ->andReturn(false)
+            ->shouldReceive('makeDirectory')
+            ->once()
+            ->withArgs([database_path('hopper/')]);
+
+        app(Sqlite::class)->boot();
+    }
+
+    // if (!File::exists(database_path(config('hopper.drivers.sqlite.database-path')))) {
+    //     File::makeDirectory(database_path(config('hopper.drivers.sqlite.database-path')));
+    // }
 }

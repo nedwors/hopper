@@ -42,15 +42,10 @@ class Sqlite implements Connection
     protected function toFilePath(string $name): string
     {
         if (!$this->isDefault($name)) {
-            $name = $this->applyDatabasePath($name);
+            $name = $this->databasePath() . $name;
         }
 
         return database_path(Str::finish($name, '.sqlite'));
-    }
-
-    protected function applyDatabasePath($database)
-    {
-        return Str::finish(config('hopper.drivers.sqlite.database-path'), '/') . $database;
     }
 
     protected function isDefault($name)
@@ -60,6 +55,13 @@ class Sqlite implements Connection
 
     public function boot()
     {
-        # code...
+        if (!File::exists($databasePath = database_path($this->databasePath()))) {
+            File::makeDirectory($databasePath);
+        }
+    }
+
+    protected function databasePath()
+    {
+        return Str::finish(config('hopper.connections.sqlite.database-path'), '/');
     }
 }
