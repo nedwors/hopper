@@ -10,9 +10,13 @@ use Nedwors\Hopper\Tests\TestCase;
 
 class JsonFilerTest extends TestCase
 {
+    protected $jsonPath;
+
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->jsonPath = base_path('vendor/nedwors/hopper/hopper.json');
 
         $this->swap(Filer::class, app(JsonFiler::class));
     }
@@ -24,7 +28,7 @@ class JsonFilerTest extends TestCase
             ->shouldReceive('put')
             ->once()
             ->withArgs(function ($jsonPath, $database) {
-                expect($jsonPath)->toEqual('./hopper.json');
+                expect($jsonPath)->toEqual($this->jsonPath);
                 expect($database)->toEqual(json_encode(['current' => 'database.sqlite']));
                 return true;
             });
@@ -40,7 +44,7 @@ class JsonFilerTest extends TestCase
             ->andReturn(true)
             ->shouldReceive('get')
             ->once()
-            ->withArgs(['./hopper.json'])
+            ->withArgs([$this->jsonPath])
             ->andReturn(json_encode(['current' => 'foobar.sqlite']));
 
         $current = app(Filer::class)->currentHop();
@@ -58,7 +62,7 @@ class JsonFilerTest extends TestCase
             ->andReturn(true)
             ->shouldReceive('get')
             ->once()
-            ->withArgs(['./hopper.json'])
+            ->withArgs([$this->jsonPath])
             ->andReturn(json_encode($currentHop));
 
         $current = app(Filer::class)->currentHop();
@@ -73,7 +77,7 @@ class JsonFilerTest extends TestCase
             ->shouldReceive('exists')
             ->andReturn(false)
             ->shouldReceive('get')
-            ->withArgs(['./hopper.json'])
+            ->withArgs([$this->jsonPath])
             ->andThrow(new FileNotFoundException());
 
         $current = app(Filer::class)->currentHop();

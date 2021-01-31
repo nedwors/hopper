@@ -13,4 +13,6 @@ interface Engine
     public function delete(string $database): bool;
 
     public function current(): ?Database;
+
+    public function boot();
 }

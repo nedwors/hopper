@@ -20,7 +20,7 @@ class DeleteCommand extends Command
         }
 
         Hop::delete($database)
-            ? $this->info("Successfully deleted $database")
+            ? $this->info("Successfully deleted <fg=yellow>$database</>")
             : $this->error("$database was not deleted");
     }
 }

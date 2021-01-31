@@ -21,6 +21,6 @@ class HopCommand extends Command
         }
 
         Hop::to($database);
-        $this->info("Hopped to $database");
+        $this->info("Hopped to <fg=yellow>$database</>");
     }
 }
