@@ -7,19 +7,24 @@ use Nedwors\Hopper\Contracts\Filer;
 
 class JsonFiler implements Filer
 {
-    const JSON_PATH = './hopper.json';
+    protected $path;
+
+    public function __construct()
+    {
+        $this->path = base_path('vendor/nedwors/hopper/hopper.json');
+    }
 
     public function setCurrentHop(string $database)
     {
-        File::put(self::JSON_PATH, json_encode(['current' => $database]));
+        File::put($this->path, json_encode(['current' => $database]));
     }
 
     public function currentHop(): ?string
     {
-        if (!File::exists(self::JSON_PATH)) {
+        if (!File::exists($this->path)) {
             return null;
         }
 
-        return data_get(json_decode(File::get(self::JSON_PATH), true), 'current');
+        return data_get(json_decode(File::get($this->path), true), 'current');
     }
 }
