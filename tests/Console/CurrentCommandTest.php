@@ -17,7 +17,7 @@ class CurrentCommandTest extends TestCase
             ->andReturn(new Database('foobar', '', 'sqlite'));
 
         $this->artisan('hop:current')
-             ->expectsOutput('foobar');
+             ->expectsOutput('Currently using foobar');
     }
 
     /** @test */

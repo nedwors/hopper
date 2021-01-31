@@ -2,6 +2,7 @@
 
 namespace Nedwors\Hopper;
 
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 use Nedwors\Hopper\Console\CurrentCommand;
 use Nedwors\Hopper\Console\DeleteCommand;
@@ -37,6 +38,10 @@ class HopperServiceProvider extends ServiceProvider
         // $this->loadViewsFrom(__DIR__.'/../resources/views', 'hopper');
         // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         // $this->loadRoutesFrom(__DIR__.'/routes.php');
+
+        if (!File::exists(database_path(config('hopper.drivers.sqlite.database-path')))) {
+            File::makeDirectory(database_path(config('hopper.drivers.sqlite.database-path')));
+        }
 
         if ($this->app->runningInConsole()) {
             $this->publishes([

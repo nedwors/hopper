@@ -44,4 +44,15 @@ class HopTest extends TestCase
 
         $this->artisan('hop test')->expectsOutput('Hopped to test');
     }
+
+    /** @test */
+    public function if_git_returns_null_a_warning_is_shown()
+    {
+        Git::partialMock()
+            ->shouldReceive('current')
+            ->once()
+            ->andReturn(null);
+
+        $this->artisan('hop')->expectsOutput('Please hop on a git branch or provide a database name');
+    }
 }
