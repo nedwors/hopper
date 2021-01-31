@@ -73,9 +73,22 @@ class HopperServiceProvider extends ServiceProvider
                 HopCommand::class
             ]);
 
-            if (config('app.env') !== "production" && env("APP_KEY")) {
+            if ($this->canBoot()) {
                 Hop::boot();
             }
         }
+    }
+
+    protected function canBoot()
+    {
+        if (!env("APP_KEY")) {
+            return false;
+        }
+
+        if (config('app.env') !== "production") {
+            return false;
+        }
+
+        return true;
     }
 }
