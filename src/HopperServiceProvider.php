@@ -81,7 +81,7 @@ class HopperServiceProvider extends ServiceProvider
             return false;
         }
 
-        if (config('app.env') !== "production") {
+        if (config('app.env') === "production") {
             return false;
         }
 
