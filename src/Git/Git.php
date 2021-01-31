@@ -6,9 +6,7 @@ class Git
 {
     public function current()
     {
-        return rescue(function () {
-            exec('git branch --show-current', $output);
-            return $output[0];
-        }, null, false);
+        exec('git branch --show-current', $output);
+        return data_get($output, 0);
     }
 }
