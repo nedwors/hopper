@@ -16,9 +16,7 @@ class Hopper
 
     public function to(string $database)
     {
-        rescue(function () use ($database) {
-            $this->engine->use($database);
-        }, null, false);
+        $this->engine->use($database);
     }
 
     public function current(): ?Database

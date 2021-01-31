@@ -38,7 +38,9 @@ class HopTest extends TestCase
     /** @test */
     public function a_success_message_will_be_shown()
     {
-        Hop::partialMock();
+        Hop::partialMock()
+            ->shouldReceive('to')
+            ->once();
 
         $this->artisan('hop test')->expectsOutput('Hopped to test');
     }
