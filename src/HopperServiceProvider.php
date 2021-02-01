@@ -4,6 +4,7 @@ namespace Nedwors\Hopper;
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
+use Nedwors\Hopper\Connections\MySQL;
 use Nedwors\Hopper\Connections\Sqlite;
 use Nedwors\Hopper\Console\CurrentCommand;
 use Nedwors\Hopper\Console\DeleteCommand;
@@ -18,7 +19,8 @@ use Nedwors\Hopper\Git\Git;
 class HopperServiceProvider extends ServiceProvider
 {
     protected static $connections = [
-        'sqlite' => Sqlite::class
+        'sqlite' => Sqlite::class,
+        'mysql' => MySQL::class
     ];
 
     public function register()

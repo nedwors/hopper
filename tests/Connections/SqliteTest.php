@@ -141,8 +141,4 @@ class SqliteTest extends TestCase
 
         app(Sqlite::class)->boot();
     }
-
-    // if (!File::exists(database_path(config('hopper.drivers.sqlite.database-path')))) {
-    //     File::makeDirectory(database_path(config('hopper.drivers.sqlite.database-path')));
-    // }
 }
