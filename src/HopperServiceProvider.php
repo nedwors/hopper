@@ -2,24 +2,23 @@
 
 namespace Nedwors\Hopper;
 
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\ServiceProvider;
-use Nedwors\Hopper\Connections\MySQL;
-use Nedwors\Hopper\Connections\Sqlite;
-use Nedwors\Hopper\Console\CurrentCommand;
-use Nedwors\Hopper\Console\DeleteCommand;
-use Nedwors\Hopper\Console\HopCommand;
-use Nedwors\Hopper\Contracts\Connection;
-use Nedwors\Hopper\Contracts\Engine;
-use Nedwors\Hopper\Contracts\Filer;
-use Nedwors\Hopper\Facades\Hop;
-use Nedwors\Hopper\Filers\JsonFiler;
 use Nedwors\Hopper\Git\Git;
+use Nedwors\Hopper\Facades\Hop;
+use Nedwors\Hopper\Contracts\Filer;
+use Nedwors\Hopper\Contracts\Engine;
+use Nedwors\Hopper\Filers\JsonFiler;
+use Nedwors\Hopper\Connections\MySQL;
+use Nedwors\Hopper\Connections\SQLite;
+use Nedwors\Hopper\Console\HopCommand;
+use Illuminate\Support\ServiceProvider;
+use Nedwors\Hopper\Contracts\Connection;
+use Nedwors\Hopper\Console\DeleteCommand;
+use Nedwors\Hopper\Console\CurrentCommand;
 
 class HopperServiceProvider extends ServiceProvider
 {
     protected static $connections = [
-        'sqlite' => Sqlite::class,
+        'sqlite' => SQLite::class,
         'mysql' => MySQL::class
     ];
 
@@ -83,7 +82,7 @@ class HopperServiceProvider extends ServiceProvider
             return false;
         }
 
-        if (config('app.env') === "production") {
+        if (config('app.env') !== "local") {
             return false;
         }
 

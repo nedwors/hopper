@@ -2,6 +2,7 @@
 
 namespace Nedwors\Hopper\Tests\Connections;
 
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Nedwors\Hopper\Connections\MySQL;
 use Nedwors\Hopper\Database;
@@ -9,6 +10,13 @@ use Nedwors\Hopper\Tests\TestCase;
 
 class MySQLTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Config::set('hopper.connections.mysql.database-prefix', 'hopper_');
+    }
+
     /** @test */
     public function the_create_method_will_execute_a_db_statement()
     {
@@ -85,5 +93,31 @@ class MySQLTest extends TestCase
         expect($database)->toBeInstanceOf(Database::class);
         expect($database->name)->toEqual('hopper_test');
         expect($database->db_database)->toEqual('hopper_hopper_test');
+    }
+
+    /** @test */
+    public function the_database_prefix_is_configurable()
+    {
+        Config::set('hopper.connections.mysql.database-prefix', 'this_is_a_test_');
+
+        DB::partialMock()
+            ->shouldReceive('statement')
+            ->once()
+            ->withArgs(['CREATE DATABASE IF NOT EXISTS this_is_a_test_hopper_test']);
+
+        app(MySQL::class)->create('hopper_test');
+    }
+
+    /** @test */
+    public function the_database_prefix_defaults_if_none_is_configured()
+    {
+        Config::set('hopper.connections.mysql.database-prefix', null);
+
+        DB::partialMock()
+            ->shouldReceive('statement')
+            ->once()
+            ->withArgs(['CREATE DATABASE IF NOT EXISTS hopper_hopper_test']);
+
+        app(MySQL::class)->create('hopper_test');
     }
 }

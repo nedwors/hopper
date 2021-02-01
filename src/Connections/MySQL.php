@@ -8,7 +8,13 @@ use Nedwors\Hopper\Database;
 
 class MySQL implements Connection
 {
-    const PREFIX = 'hopper_';
+    const DEFAULT_PREFIX = 'hopper_';
+    protected $prefix;
+
+    public function __construct()
+    {
+        $this->prefix = config('hopper.connections.mysql.database-prefix') ?? self::DEFAULT_PREFIX;
+    }
 
     public function create(string $name)
     {
@@ -40,11 +46,8 @@ class MySQL implements Connection
 
     protected function sanitize(string $name): string
     {
-        return self::PREFIX . str_replace('-', '_', $name);
+        return $this->prefix . str_replace('-', '_', $name);
     }
 
-    public function boot()
-    {
-
-    }
+    public function boot() {}
 }

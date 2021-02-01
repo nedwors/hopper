@@ -4,11 +4,11 @@ namespace Nedwors\Hopper\Tests\Connections;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
-use Nedwors\Hopper\Connections\Sqlite;
+use Nedwors\Hopper\Connections\SQLite;
 use Nedwors\Hopper\Database;
 use Nedwors\Hopper\Tests\TestCase;
 
-class SqliteTest extends TestCase
+class SQLiteTest extends TestCase
 {
     protected $databasePath = 'hopper';
 
@@ -31,7 +31,7 @@ class SqliteTest extends TestCase
                 return true;
             });
 
-        app(Sqlite::class)->create('foobar');
+        app(SQLite::class)->create('foobar');
     }
 
     /** @test */
@@ -46,7 +46,7 @@ class SqliteTest extends TestCase
             })
             ->andReturn($exists = rand(1, 2) == 1);
 
-        expect(app(Sqlite::class)->exists('foobar'))->toEqual($exists);
+        expect(app(SQLite::class)->exists('foobar'))->toEqual($exists);
     }
 
     /** @test */
@@ -59,7 +59,7 @@ class SqliteTest extends TestCase
             ->shouldNotReceive('put')
             ->withArgs(fn($database) => $database == database_path("{$this->databasePath}/foobar.sqlite"));
 
-        app(Sqlite::class)->create('foobar');
+        app(SQLite::class)->create('foobar');
     }
 
     /** @test */
@@ -74,7 +74,7 @@ class SqliteTest extends TestCase
             })
             ->andReturn(true);
 
-        app(Sqlite::class)->delete('foobar');
+        app(SQLite::class)->delete('foobar');
     }
 
     /** @test */
@@ -89,7 +89,7 @@ class SqliteTest extends TestCase
             })
             ->andReturn($deleted = rand(1, 2) == 1);
 
-        expect(app(Sqlite::class)->delete('foobar'))->toEqual($deleted);
+        expect(app(SQLite::class)->delete('foobar'))->toEqual($deleted);
     }
 
     /** @test */
@@ -99,13 +99,13 @@ class SqliteTest extends TestCase
 
         File::partialMock()->shouldNotReceive('delete');
 
-        app(Sqlite::class)->delete('database');
+        app(SQLite::class)->delete('database');
     }
 
     /** @test */
     public function database_returns_a_database_object_based_on_the_given_name()
     {
-        $database = app(Sqlite::class)->database('hello-world');
+        $database = app(SQLite::class)->database('hello-world');
 
         expect($database)->toBeInstanceOf(Database::class);
         expect($database->name)->toEqual('hello-world');
@@ -118,7 +118,7 @@ class SqliteTest extends TestCase
     {
         Config::set('hopper.default-database', 'database');
 
-        $database = app(Sqlite::class)->database('database');
+        $database = app(SQLite::class)->database('database');
 
         expect($database)->toBeInstanceOf(Database::class);
         expect($database->name)->toEqual('database');
@@ -139,6 +139,6 @@ class SqliteTest extends TestCase
             ->once()
             ->withArgs([database_path('hopper/')]);
 
-        app(Sqlite::class)->boot();
+        app(SQLite::class)->boot();
     }
 }
