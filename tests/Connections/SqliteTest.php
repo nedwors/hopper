@@ -5,7 +5,6 @@ namespace Nedwors\Hopper\Tests\Connections;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Nedwors\Hopper\Connections\SQLite;
-use Nedwors\Hopper\Database;
 use Nedwors\Hopper\Tests\TestCase;
 
 class SQLiteTest extends TestCase

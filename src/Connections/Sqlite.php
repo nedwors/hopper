@@ -5,7 +5,6 @@ namespace Nedwors\Hopper\Connections;
 use Illuminate\Support\Facades\File;
 use Nedwors\Hopper\Contracts\Connection;
 use Illuminate\Support\Str;
-use Nedwors\Hopper\Database;
 
 class SQLite implements Connection
 {
