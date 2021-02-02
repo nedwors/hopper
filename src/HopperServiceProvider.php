@@ -7,8 +7,8 @@ use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Contracts\Filer;
 use Nedwors\Hopper\Contracts\Engine;
 use Nedwors\Hopper\Filers\JsonFiler;
-use Nedwors\Hopper\Connections\MySQL;
-use Nedwors\Hopper\Connections\SQLite;
+use Nedwors\Hopper\Connections\MySql;
+use Nedwors\Hopper\Connections\Sqlite;
 use Nedwors\Hopper\Console\HopCommand;
 use Illuminate\Support\ServiceProvider;
 use Nedwors\Hopper\Contracts\Connection;
@@ -18,8 +18,8 @@ use Nedwors\Hopper\Console\CurrentCommand;
 class HopperServiceProvider extends ServiceProvider
 {
     protected static $connections = [
-        'sqlite' => SQLite::class,
-        'mysql' => MySQL::class
+        'sqlite' => Sqlite::class,
+        'mysql' => MySql::class
     ];
 
     public function register()

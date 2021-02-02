@@ -4,11 +4,10 @@ namespace Nedwors\Hopper\Tests\Connections;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
-use Nedwors\Hopper\Connections\MySQL;
-use Nedwors\Hopper\Database;
+use Nedwors\Hopper\Connections\MySql;
 use Nedwors\Hopper\Tests\TestCase;
 
-class MySQLTest extends TestCase
+class MySqlTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -25,7 +24,7 @@ class MySQLTest extends TestCase
             ->once()
             ->withArgs(['CREATE DATABASE IF NOT EXISTS hopper_hopper_test']);
 
-        app(MySQL::class)->create('hopper_test');
+        app(MySql::class)->create('hopper_test');
     }
 
     /** @test */
@@ -36,7 +35,7 @@ class MySQLTest extends TestCase
             ->once()
             ->withArgs(['CREATE DATABASE IF NOT EXISTS hopper_test_database_with_underscores']);
 
-        app(MySQL::class)->create('test-database_with-underscores');
+        app(MySql::class)->create('test-database_with-underscores');
     }
 
     /** @test */
@@ -47,7 +46,7 @@ class MySQLTest extends TestCase
             ->once()
             ->withArgs(['DROP DATABASE IF EXISTS hopper_hopper_test']);
 
-        app(MySQL::class)->delete('hopper_test');
+        app(MySql::class)->delete('hopper_test');
     }
 
     /** @test */
@@ -58,7 +57,7 @@ class MySQLTest extends TestCase
             ->once()
             ->withArgs(['DROP DATABASE IF EXISTS hopper_test_database_with_underscores']);
 
-        app(MySQL::class)->delete('test-database_with-underscores');
+        app(MySql::class)->delete('test-database_with-underscores');
     }
 
     /** @test */
@@ -70,7 +69,7 @@ class MySQLTest extends TestCase
             ->withArgs(["SHOW DATABASES LIKE 'hopper_hopper_test'"])
             ->andReturn([]);
 
-        app(MySQL::class)->exists('hopper_test');
+        app(MySql::class)->exists('hopper_test');
     }
 
     /** @test */
@@ -82,7 +81,7 @@ class MySQLTest extends TestCase
             ->withArgs(["SHOW DATABASES LIKE 'hopper_test_database_with_underscores'"])
             ->andReturn([]);
 
-        app(MySQL::class)->exists('test-database_with-underscores');
+        app(MySql::class)->exists('test-database_with-underscores');
     }
 
     /** @test */
@@ -95,7 +94,7 @@ class MySQLTest extends TestCase
             ->once()
             ->withArgs(['CREATE DATABASE IF NOT EXISTS this_is_a_test_hopper_test']);
 
-        app(MySQL::class)->create('hopper_test');
+        app(MySql::class)->create('hopper_test');
     }
 
     /** @test */
@@ -108,13 +107,13 @@ class MySQLTest extends TestCase
             ->once()
             ->withArgs(['CREATE DATABASE IF NOT EXISTS hopper_hopper_test']);
 
-        app(MySQL::class)->create('hopper_test');
+        app(MySql::class)->create('hopper_test');
     }
 
     /** @test */
     public function database_will_return_the_database_name_for_the_given_name()
     {
-        $database = app(MySQL::class)->database('hopper_test');
+        $database = app(MySql::class)->database('hopper_test');
 
         expect($database)->toEqual('hopper_hopper_test');
     }
@@ -124,7 +123,7 @@ class MySQLTest extends TestCase
     {
         Config::set('database.connections.mysql.database', 'hopper');
 
-        $database = app(MySQL::class)->database('hopper');
+        $database = app(MySql::class)->database('hopper');
 
         expect($database)->toEqual('hopper');
     }

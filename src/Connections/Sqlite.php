@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\File;
 use Nedwors\Hopper\Contracts\Connection;
 use Illuminate\Support\Str;
 
-class SQLite implements Connection
+class Sqlite implements Connection
 {
     public function create(string $name)
     {

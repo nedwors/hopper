@@ -4,9 +4,8 @@ namespace Nedwors\Hopper\Connections;
 
 use Illuminate\Support\Facades\DB;
 use Nedwors\Hopper\Contracts\Connection;
-use Nedwors\Hopper\Database;
 
-class MySQL implements Connection
+class MySql implements Connection
 {
     const DEFAULT_PREFIX = 'hopper_';
     protected $prefix;
