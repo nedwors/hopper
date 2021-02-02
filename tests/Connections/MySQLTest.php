@@ -86,16 +86,6 @@ class MySQLTest extends TestCase
     }
 
     /** @test */
-    public function database_will_return_a_database_with_the_prefixed_db_connection()
-    {
-        $database = app(MySQL::class)->database('hopper_test');
-
-        expect($database)->toBeInstanceOf(Database::class);
-        expect($database->name)->toEqual('hopper_test');
-        expect($database->db_database)->toEqual('hopper_hopper_test');
-    }
-
-    /** @test */
     public function the_database_prefix_is_configurable()
     {
         Config::set('hopper.connections.mysql.database-prefix', 'this_is_a_test_');
@@ -122,14 +112,20 @@ class MySQLTest extends TestCase
     }
 
     /** @test */
+    public function database_will_return_the_database_name_for_the_given_name()
+    {
+        $database = app(MySQL::class)->database('hopper_test');
+
+        expect($database)->toEqual('hopper_hopper_test');
+    }
+
+    /** @test */
     public function database_will_return_a_database_without_the_prefixed_db_connection_for_the_default_database()
     {
         Config::set('database.connections.mysql.database', 'hopper');
 
         $database = app(MySQL::class)->database('hopper');
 
-        expect($database)->toBeInstanceOf(Database::class);
-        expect($database->name)->toEqual('hopper');
-        expect($database->db_database)->toEqual('hopper');
+        expect($database)->toEqual('hopper');
     }
 }

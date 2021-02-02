@@ -154,26 +154,34 @@ class EngineTest extends TestCase
         app(Engine::class)->delete('database');
     }
 
-    /** @test */
-    public function current_asks_the_connection_to_return_a_database_object_based_on_the_filer_current_database()
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function current_builds_and_returns_a_database_object_using_the_connection_based_on_the_filer_current_database($connection, $name, $database)
     {
+        $database = is_callable($database) ? $database() : $database;
+
         $this->mock(Connection::class)
             ->shouldReceive('database')
             ->once()
-            ->withArgs(['hello-world'])
-            ->andReturn(new Database('hello-world', 'db', 'connection'));
+            ->withArgs([$name])
+            ->andReturn($database)
+            ->shouldReceive('name')
+            ->once()
+            ->andReturn($connection);
 
         $this->mock(Filer::class)
             ->shouldReceive('currentHop')
             ->once()
-            ->andReturn('hello-world');
+            ->andReturn($name);
 
-        $database = app(Engine::class)->current();
+        $db = app(Engine::class)->current();
 
-        expect($database)->toBeInstanceOf(Database::class);
-        expect($database->name)->toEqual('hello-world');
-        expect($database->db_database)->toEqual('db');
-        expect($database->connection)->toEqual('connection');
+        expect($db)->toBeInstanceOf(Database::class);
+        expect($db->name)->toEqual($name);
+        expect($db->db_database)->toEqual($database);
+        expect($db->connection)->toEqual($connection);
     }
 
     /** @test */
@@ -206,7 +214,7 @@ class EngineTest extends TestCase
     }
 
    /**
-     * @dataProvider databaseDriverDataProvider
+     * @dataProvider databaseConnectionDataProvider
      * @test
      * */
     public function calling_boot_will_set_the_database_config_database_to_the_current_hop_for_the_configured_database_driver($connection, $name, $databaseFile)
@@ -221,7 +229,11 @@ class EngineTest extends TestCase
         $this->mock(Connection::class)
             ->shouldReceive('database')
             ->once()
-            ->andReturn(new Database($name, $database, $connection))
+            ->withArgs([$name])
+            ->andReturn($database)
+            ->shouldReceive('name')
+            ->once()
+            ->andReturn($connection)
             ->shouldReceive('boot');
 
         app(Engine::class)->boot();
@@ -229,16 +241,23 @@ class EngineTest extends TestCase
         expect(config("database.connections.$connection.database"))->toEqual($database);
     }
 
-    /** @test */
-    public function when_the_engine_boots_it_asks_the_connection_to_boot()
+   /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function when_the_engine_boots_it_asks_the_connection_to_boot($connection, $name, $database)
     {
+        $database = is_callable($database) ? $database() : $database;
+
         $this->mock(Filer::class)
             ->shouldReceive('currentHop')
             ->andReturn('foobar');
 
         $this->mock(Connection::class)
             ->shouldReceive('database')
-            ->andReturn(new Database('foobar', 'db', 'foobar'))
+            ->andReturn($database)
+            ->shouldReceive('name')
+            ->andReturn($connection)
             ->shouldReceive('boot')
             ->once();
 
@@ -261,10 +280,11 @@ class EngineTest extends TestCase
         app(Engine::class)->boot();
     }
 
-    public function databaseDriverDataProvider()
+    public function databaseConnectionDataProvider()
     {
         return [
-            ['sqlite', 'foobar', fn() => database_path('foobar.sqlite')]
+            ['sqlite', 'foobar', fn() => database_path('foobar.sqlite')],
+            ['mysql', 'foobar', 'hopper_foobar'],
         ];
     }
 }

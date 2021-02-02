@@ -96,26 +96,21 @@ class SQLiteTest extends TestCase
     }
 
     /** @test */
-    public function database_returns_a_database_object_based_on_the_given_name()
+    public function database_returns_the_database_connection_required_for_the_database()
     {
         $database = app(SQLite::class)->database('hello-world');
 
-        expect($database)->toBeInstanceOf(Database::class);
-        expect($database->name)->toEqual('hello-world');
-        expect($database->db_database)->toEqual(database_path("{$this->databasePath}/hello-world.sqlite"));
-        expect($database->connection)->toEqual('sqlite');
+        expect($database)->toEqual(database_path("{$this->databasePath}/hello-world.sqlite"));
     }
 
     /** @test */
-    public function the_default_database_is_returned_without_the_directory_as_it_is_in_the_root_of_the_database_path()
+    public function the_default_database_is_returned_without_the_directory()
     {
         Config::set('database.connections.sqlite.database', 'database');
 
         $database = app(SQLite::class)->database('database');
 
-        expect($database)->toBeInstanceOf(Database::class);
-        expect($database->name)->toEqual('database');
-        expect($database->db_database)->toEqual(database_path("database.sqlite"));
+        expect($database)->toEqual(database_path("database.sqlite"));
     }
 
     /** @test */

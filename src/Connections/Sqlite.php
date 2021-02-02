@@ -34,9 +34,9 @@ class SQLite implements Connection
         return File::delete($this->toFilePath($name));
     }
 
-    public function database(string $name): Database
+    public function database(string $name): string
     {
-        return new Database($name, $this->toFilePath($name), 'sqlite');
+        return $this->toFilePath($name);
     }
 
     protected function toFilePath(string $name): string
@@ -51,6 +51,11 @@ class SQLite implements Connection
     protected function isDefault($name)
     {
         return $name === config('database.connections.sqlite.database');
+    }
+
+    public function name(): string
+    {
+        return 'sqlite';
     }
 
     public function boot()

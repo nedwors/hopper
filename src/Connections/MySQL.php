@@ -39,9 +39,9 @@ class MySQL implements Connection
         return true;
     }
 
-    public function database(string $name): Database
+    public function database(string $name): string
     {
-        return new Database($name, $this->sanitize($name), 'mysql');
+        return $this->sanitize($name);
     }
 
     protected function sanitize(string $name): string
@@ -54,6 +54,11 @@ class MySQL implements Connection
     protected function isDefault($name)
     {
         return $name === config('database.connections.mysql.database');
+    }
+
+    public function name(): string
+    {
+        return 'mysql';
     }
 
     public function boot() {}
