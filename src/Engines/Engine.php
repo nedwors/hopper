@@ -7,6 +7,7 @@ use Nedwors\Hopper\Contracts;
 use Nedwors\Hopper\Contracts\Connection;
 use Nedwors\Hopper\Contracts\Filer;
 use Nedwors\Hopper\Database;
+use Nedwors\Hopper\Facades\Git;
 
 class Engine implements Contracts\Engine
 {
@@ -21,9 +22,7 @@ class Engine implements Contracts\Engine
 
     public function use(string $database)
     {
-        $database = $this->isDefaultGitBranch($database)
-                        ? $this->defaultDatabase()
-                        : $database;
+        $database = $this->resolveDatabaseName($database);
 
         if ($this->shouldCreate($database)) {
             $this->connection->create($database);
@@ -32,17 +31,9 @@ class Engine implements Contracts\Engine
         $this->filer->setCurrentHop($database);
     }
 
-    protected function isDefaultGitBranch(string $name): string
+    protected function resolveDatabaseName(string $database)
     {
-        if (!$gitBranch = config('hopper.default-branch')) {
-            return false;
-        }
-
-        if ($name != $gitBranch) {
-            return false;
-        }
-
-        return true;
+        return $database === Git::default() ? $this->defaultDatabase() : $database;
     }
 
     protected function shouldCreate(string $database): bool

@@ -27,7 +27,7 @@ class HopperServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'hopper');
 
         $this->app->bind(Filer::class, JsonFiler::class);
-        $this->app->bind(Connection::class, static::$connections[config('hopper.connection')]);
+        $this->app->bind(Connection::class, static::$connections[config('database.default', 'sqlite')]);
         $this->app->bind(Engine::class, Engines\Engine::class);
 
         $this->app->singleton('hopper', fn() => new Hopper(app(Engine::class)));

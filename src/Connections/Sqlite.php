@@ -50,7 +50,7 @@ class SQLite implements Connection
 
     protected function isDefault($name)
     {
-        return $name === config('hopper.default-database');
+        return $name === config('database.connections.sqlite.database');
     }
 
     public function boot()
@@ -62,6 +62,6 @@ class SQLite implements Connection
 
     protected function databasePath()
     {
-        return Str::finish(config('hopper.connections.sqlite.database-path'), '/');
+        return Str::finish(config('hopper.connections.sqlite.database-path', 'hopper/'), '/');
     }
 }

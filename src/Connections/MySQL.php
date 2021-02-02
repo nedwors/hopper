@@ -46,7 +46,14 @@ class MySQL implements Connection
 
     protected function sanitize(string $name): string
     {
-        return $this->prefix . str_replace('-', '_', $name);
+        $name = str_replace('-', '_', $name);
+
+        return $this->isDefault($name) ? $name : "{$this->prefix}$name";
+    }
+
+    protected function isDefault($name)
+    {
+        return $name === config('database.connections.mysql.database');
     }
 
     public function boot() {}

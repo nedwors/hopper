@@ -12,13 +12,6 @@ class SQLiteTest extends TestCase
 {
     protected $databasePath = 'hopper';
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        Config::set('hopper.connections.sqlite.database-path', $this->databasePath);
-    }
-
     /** @test */
     public function create_will_create_a_new_sqlite_database_at_the_database_path_in_the_configured_hopper_directory()
     {
@@ -95,7 +88,7 @@ class SQLiteTest extends TestCase
     /** @test */
     public function calling_delete_with_the_configured_default_database_name_will_not_delete_the_database()
     {
-        Config::set('hopper.default-database', 'database');
+        Config::set('database.connections.sqlite.database', 'database');
 
         File::partialMock()->shouldNotReceive('delete');
 
@@ -116,7 +109,7 @@ class SQLiteTest extends TestCase
     /** @test */
     public function the_default_database_is_returned_without_the_directory_as_it_is_in_the_root_of_the_database_path()
     {
-        Config::set('hopper.default-database', 'database');
+        Config::set('database.connections.sqlite.database', 'database');
 
         $database = app(SQLite::class)->database('database');
 
