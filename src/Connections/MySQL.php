@@ -17,21 +17,21 @@ class MySql implements Connection
 
     public function create(string $name)
     {
-        $name = $this->sanitize($name);
+        $name = $this->database($name);
 
         DB::statement("CREATE DATABASE IF NOT EXISTS $name");
     }
 
     public function exists(string $name): bool
     {
-        $name = $this->sanitize($name);
+        $name = $this->database($name);
 
         return count(DB::select("SHOW DATABASES LIKE '$name'")) > 0;
     }
 
     public function delete(string $name): bool
     {
-        $name = $this->sanitize($name);
+        $name = $this->database($name);
 
         DB::statement("DROP DATABASE IF EXISTS $name");
 
@@ -39,11 +39,6 @@ class MySql implements Connection
     }
 
     public function database(string $name): string
-    {
-        return $this->sanitize($name);
-    }
-
-    protected function sanitize(string $name): string
     {
         $name = str_replace('-', '_', $name);
 

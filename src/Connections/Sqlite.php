@@ -10,18 +10,16 @@ class Sqlite implements Connection
 {
     public function create(string $name)
     {
-        $fileName = $this->toFilePath($name);
-
-        if ($this->exists($fileName)) {
+        if ($this->exists($name)) {
             return;
         }
 
-        File::put($fileName, '');
+        File::put($this->database($name), '');
     }
 
     public function exists(string $name): bool
     {
-        return File::exists($this->toFilePath($name));
+        return File::exists($this->database($name));
     }
 
     public function delete(string $name): bool
@@ -30,18 +28,13 @@ class Sqlite implements Connection
             return false;
         }
 
-        return File::delete($this->toFilePath($name));
+        return File::delete($this->database($name));
     }
 
     public function database(string $name): string
     {
-        return $this->toFilePath($name);
-    }
-
-    protected function toFilePath(string $name): string
-    {
         if (!$this->isDefault($name)) {
-            $name = $this->databasePath() . $name;
+            $name = $this->hopperDirectory() . $name;
         }
 
         return database_path(Str::finish($name, '.sqlite'));
@@ -59,12 +52,12 @@ class Sqlite implements Connection
 
     public function boot()
     {
-        if (!File::exists($databasePath = database_path($this->databasePath()))) {
-            File::makeDirectory($databasePath);
+        if (!File::exists($hopperDirectory = database_path($this->hopperDirectory()))) {
+            File::makeDirectory($hopperDirectory);
         }
     }
 
-    protected function databasePath()
+    protected function hopperDirectory()
     {
         return Str::finish(config('hopper.connections.sqlite.database-path', 'hopper/'), '/');
     }
