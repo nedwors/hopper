@@ -87,7 +87,7 @@ class Engine implements Contracts\Engine
 
     protected function defaultDatabase()
     {
-        return config('hopper.default-database');
+        return config("database.connections.{$this->connection->name()}.database");
     }
 
     public function boot()
