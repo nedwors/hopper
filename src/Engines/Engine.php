@@ -69,15 +69,14 @@ class Engine implements Contracts\Engine
 
     public function current(): ?Database
     {
-        if (!$database = $this->filer->currentHop()) {
+        if (!$name = $this->filer->currentHop()) {
             return null;
         }
 
         return new Database(
-            $database,
-            $this->connection->database($database),
-            $this->connection->name()
-        );
+            $name,
+            $this->connection->database($name, $this->isDefault($name)),
+            $this->connection->name());
     }
 
     protected function isDefault(string $name)

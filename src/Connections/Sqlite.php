@@ -10,10 +10,6 @@ class Sqlite implements Connection
 {
     public function create(string $name)
     {
-        if ($this->exists($name)) {
-            return;
-        }
-
         File::put($this->database($name), '');
     }
 
@@ -24,25 +20,16 @@ class Sqlite implements Connection
 
     public function delete(string $name): bool
     {
-        if ($this->isDefault($name)) {
-            return false;
-        }
-
         return File::delete($this->database($name));
     }
 
-    public function database(string $name): string
+    public function database(string $name, bool $isDefault = false): string
     {
-        if (!$this->isDefault($name)) {
+        if (!$isDefault) {
             $name = $this->hopperDirectory() . $name;
         }
 
         return database_path(Str::finish($name, '.sqlite'));
-    }
-
-    protected function isDefault($name)
-    {
-        return $name === config('database.connections.sqlite.database');
     }
 
     public function name(): string

@@ -121,9 +121,7 @@ class MySqlTest extends TestCase
     /** @test */
     public function database_will_return_a_database_without_the_prefixed_db_connection_for_the_default_database()
     {
-        Config::set('database.connections.mysql.database', 'hopper');
-
-        $database = app(MySql::class)->database('hopper');
+        $database = app(MySql::class)->database('hopper', $isDefault = true);
 
         expect($database)->toEqual('hopper');
     }

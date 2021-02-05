@@ -42,19 +42,6 @@ class SqliteTest extends TestCase
     }
 
     /** @test */
-    public function a_database_will_not_be_created_if_it_already_exists_to_prevent_overwrites()
-    {
-        File::partialMock()
-            ->shouldReceive('exists')
-            ->once()
-            ->andReturn(true)
-            ->shouldNotReceive('put')
-            ->withArgs(fn($database) => $database == database_path("{$this->databasePath}/foobar.sqlite"));
-
-        app(Sqlite::class)->create('foobar');
-    }
-
-    /** @test */
     public function delete_will_remove_the_given_database()
     {
         File::partialMock()
@@ -85,16 +72,6 @@ class SqliteTest extends TestCase
     }
 
     /** @test */
-    public function calling_delete_with_the_configured_default_database_name_will_not_delete_the_database()
-    {
-        Config::set('database.connections.sqlite.database', 'database');
-
-        File::partialMock()->shouldNotReceive('delete');
-
-        app(Sqlite::class)->delete('database');
-    }
-
-    /** @test */
     public function database_returns_the_database_connection_required_for_the_database()
     {
         $database = app(Sqlite::class)->database('hello-world');
@@ -105,9 +82,7 @@ class SqliteTest extends TestCase
     /** @test */
     public function the_default_database_is_returned_without_the_directory()
     {
-        Config::set('database.connections.sqlite.database', 'database');
-
-        $database = app(Sqlite::class)->database('database');
+        $database = app(Sqlite::class)->database('database', $isDefault = true);
 
         expect($database)->toEqual(database_path("database.sqlite"));
     }
