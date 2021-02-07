@@ -7,6 +7,7 @@ use Nedwors\Hopper\Contracts;
 use Nedwors\Hopper\Contracts\Connection;
 use Nedwors\Hopper\Contracts\Filer;
 use Nedwors\Hopper\Database;
+use Nedwors\Hopper\Facades\Git;
 
 class Engine implements Contracts\Engine
 {
@@ -21,9 +22,7 @@ class Engine implements Contracts\Engine
 
     public function use(string $database)
     {
-        $database = $this->isDefaultGitBranch($database)
-                        ? $this->defaultDatabase()
-                        : $database;
+        $database = $this->resolveDatabaseName($database);
 
         if ($this->shouldCreate($database)) {
             $this->connection->create($database);
@@ -32,17 +31,9 @@ class Engine implements Contracts\Engine
         $this->filer->setCurrentHop($database);
     }
 
-    protected function isDefaultGitBranch(string $name): string
+    protected function resolveDatabaseName(string $database)
     {
-        if (!$gitBranch = config('hopper.default-branch')) {
-            return false;
-        }
-
-        if ($name != $gitBranch) {
-            return false;
-        }
-
-        return true;
+        return $database === Git::default() ? $this->defaultDatabase() : $database;
     }
 
     protected function shouldCreate(string $database): bool
@@ -78,13 +69,14 @@ class Engine implements Contracts\Engine
 
     public function current(): ?Database
     {
-        $database = $this->filer->currentHop();
-
-        if (!$database) {
+        if (!$name = $this->filer->currentHop()) {
             return null;
         }
 
-        return $this->connection->database($database);
+        return new Database(
+            $name,
+            $this->connection->database($name, $this->isDefault($name)),
+            $this->connection->name());
     }
 
     protected function isDefault(string $name)
@@ -94,7 +86,7 @@ class Engine implements Contracts\Engine
 
     protected function defaultDatabase()
     {
-        return config('hopper.default-database');
+        return config("database.connections.{$this->connection->name()}.database");
     }
 
     public function boot()

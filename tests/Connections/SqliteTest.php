@@ -5,19 +5,11 @@ namespace Nedwors\Hopper\Tests\Connections;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 use Nedwors\Hopper\Connections\Sqlite;
-use Nedwors\Hopper\Database;
 use Nedwors\Hopper\Tests\TestCase;
 
 class SqliteTest extends TestCase
 {
     protected $databasePath = 'hopper';
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        Config::set('hopper.connections.sqlite.database-path', $this->databasePath);
-    }
 
     /** @test */
     public function create_will_create_a_new_sqlite_database_at_the_database_path_in_the_configured_hopper_directory()
@@ -47,19 +39,6 @@ class SqliteTest extends TestCase
             ->andReturn($exists = rand(1, 2) == 1);
 
         expect(app(Sqlite::class)->exists('foobar'))->toEqual($exists);
-    }
-
-    /** @test */
-    public function a_database_will_not_be_created_if_it_already_exists_to_prevent_overwrites()
-    {
-        File::partialMock()
-            ->shouldReceive('exists')
-            ->once()
-            ->andReturn(true)
-            ->shouldNotReceive('put')
-            ->withArgs(fn($database) => $database == database_path("{$this->databasePath}/foobar.sqlite"));
-
-        app(Sqlite::class)->create('foobar');
     }
 
     /** @test */
@@ -93,36 +72,19 @@ class SqliteTest extends TestCase
     }
 
     /** @test */
-    public function calling_delete_with_the_configured_default_database_name_will_not_delete_the_database()
-    {
-        Config::set('hopper.default-database', 'database');
-
-        File::partialMock()->shouldNotReceive('delete');
-
-        app(Sqlite::class)->delete('database');
-    }
-
-    /** @test */
-    public function database_returns_a_database_object_based_on_the_given_name()
+    public function database_returns_the_database_connection_required_for_the_database()
     {
         $database = app(Sqlite::class)->database('hello-world');
 
-        expect($database)->toBeInstanceOf(Database::class);
-        expect($database->name)->toEqual('hello-world');
-        expect($database->db_database)->toEqual(database_path("{$this->databasePath}/hello-world.sqlite"));
-        expect($database->connection)->toEqual('sqlite');
+        expect($database)->toEqual(database_path("{$this->databasePath}/hello-world.sqlite"));
     }
 
     /** @test */
-    public function the_default_database_is_returned_without_the_directory_as_it_is_in_the_root_of_the_database_path()
+    public function the_default_database_is_returned_without_the_directory()
     {
-        Config::set('hopper.default-database', 'database');
+        $database = app(Sqlite::class)->database('database', $isDefault = true);
 
-        $database = app(Sqlite::class)->database('database');
-
-        expect($database)->toBeInstanceOf(Database::class);
-        expect($database->name)->toEqual('database');
-        expect($database->db_database)->toEqual(database_path("database.sqlite"));
+        expect($database)->toEqual(database_path("database.sqlite"));
     }
 
     /** @test */
@@ -141,8 +103,4 @@ class SqliteTest extends TestCase
 
         app(Sqlite::class)->boot();
     }
-
-    // if (!File::exists(database_path(config('hopper.drivers.sqlite.database-path')))) {
-    //     File::makeDirectory(database_path(config('hopper.drivers.sqlite.database-path')));
-    // }
 }

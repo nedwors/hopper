@@ -17,24 +17,40 @@ class EngineTest extends TestCase
         $this->mock(Filer::class)->shouldReceive('setCurrentHop');
     }
 
-    /** @test */
-    public function use_will_ask_the_connection_to_create_a_new_database_if_it_does_not_exist()
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function use_will_ask_the_connection_to_create_a_new_database_if_it_does_not_exist($connection, $name, $database, $default)
     {
+        $database = is_callable($database) ? $database() : $database;
+        Config::set("database.connections.$connection.database", $default);
+
         $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
             ->shouldReceive('exists')
             ->once()
             ->andReturn(false)
             ->shouldReceive('create')
             ->once()
-            ->withArgs(['foobar']);
+            ->withArgs([$name]);
 
-        app(Engine::class)->use('foobar');
+        app(Engine::class)->use($name);
     }
 
-    /** @test */
-    public function use_will_not_ask_the_connection_to_create_a_new_database_if_it_exists()
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function use_will_not_ask_the_connection_to_create_a_new_database_if_it_exists($connection, $name, $database, $default)
     {
+        $database = is_callable($database) ? $database() : $database;
+        Config::set("database.connections.$connection.database", $default);
+
         $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
             ->shouldReceive('exists')
             ->once()
             ->andReturn(true)
@@ -43,27 +59,43 @@ class EngineTest extends TestCase
         app(Engine::class)->use('foobar');
     }
 
-    /** @test */
-    public function use_will_file_the_currentHop_by_its_name_if_the_database_is_created_by_the_connection()
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function use_will_file_the_currentHop_by_its_name_if_the_database_is_created_by_the_connection($connection, $name, $database, $default)
     {
+        $database = is_callable($database) ? $database() : $database;
+        Config::set("database.connections.$connection.database", $default);
+
         $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
             ->shouldReceive('exists')
             ->andReturn(false)
             ->shouldReceive('create')
-            ->withArgs(['foobar']);
+            ->withArgs([$name]);
 
         $this->mock(Filer::class)
             ->shouldReceive('setCurrentHop')
             ->once()
-            ->withArgs(['foobar']);
+            ->withArgs([$name]);
 
-        app(Engine::class)->use('foobar');
+        app(Engine::class)->use($name);
     }
 
-    /** @test */
-    public function use_will_file_the_currentHop_even_if_the_database_is_not_created()
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function use_will_file_the_currentHop_even_if_the_database_is_not_created($connection, $name, $database, $default)
     {
+        $database = is_callable($database) ? $database() : $database;
+        Config::set("database.connections.$connection.database", $default);
+
         $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
             ->shouldReceive('exists')
             ->andReturn(true)
             ->shouldNotReceive('create');
@@ -71,115 +103,194 @@ class EngineTest extends TestCase
         $this->mock(Filer::class)
             ->shouldReceive('setCurrentHop')
             ->once()
-            ->withArgs(['foobar']);
+            ->withArgs([$name]);
 
-        app(Engine::class)->use('foobar');
+        app(Engine::class)->use($name);
     }
 
-    /** @test */
-    public function calling_use_with_the_configured_default_database_name_will_not_create_a_database_but_still_file_the_current_hop()
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function calling_use_with_the_configured_default_database_name_will_not_create_a_database_but_still_file_the_current_hop($connection, $name, $database, $default)
     {
-        Config::set('hopper.default-database', 'database');
+        Config::set("database.connections.$connection.database", $default);
 
-        $this->mock(Connection::class)->shouldNotReceive('create');
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->once()
+            ->andReturn($connection)
+            ->shouldNotReceive('create');
 
         $this->mock(Filer::class)
             ->shouldReceive('setCurrentHop')
             ->once()
-            ->withArgs(['database']);
+            ->withArgs([$default]);
 
-        app(Engine::class)->use('database');
+        app(Engine::class)->use($default);
     }
 
-    /** @test */
-    public function exists_returns_the_connections_exists_method_return_value()
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function exists_returns_the_connections_exists_method_return_value($connection, $name, $database, $default)
     {
+        Config::set("database.connections.$connection.database", $default);
+
         $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
             ->shouldReceive('exists')
             ->once()
-            ->withArgs(['foobar'])
+            ->withArgs([$name])
             ->andReturn($exists = rand(1,2) == 1);
 
-        expect(app(Engine::class)->exists('foobar'))->toEqual($exists);
+        expect(app(Engine::class)->exists($name))->toEqual($exists);
     }
 
-    /** @test */
-    public function delete_will_ask_the_connection_to_delete_the_given_database_if_it_exists()
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function delete_will_ask_the_connection_to_delete_the_given_database_if_it_exists($connection, $name, $database, $default)
     {
         $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
             ->shouldReceive('exists')
             ->once()
-            ->withArgs(['foobar'])
+            ->withArgs([$name])
             ->andReturn(true)
             ->shouldReceive('delete')
             ->once()
-            ->withArgs(['foobar'])
+            ->withArgs([$name])
             ->andReturn(true);
 
-        app(Engine::class)->delete('foobar');
+        app(Engine::class)->delete($name);
     }
 
-    /** @test */
-    public function delete_will_not_ask_the_connection_to_delete_the_given_database_if_it_doesnt_exist()
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function delete_will_not_ask_the_connection_to_delete_the_given_database_if_it_doesnt_exist($connection, $name, $database, $default)
     {
         $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
             ->shouldReceive('exists')
             ->once()
-            ->withArgs(['foobar'])
+            ->withArgs([$name])
             ->andReturn(false)
             ->shouldNotReceive('delete');
 
-        app(Engine::class)->delete('foobar');
+        app(Engine::class)->delete($name);
     }
 
-    /** @test */
-    public function delete_will_return_the_connections_deletion_boolean()
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function delete_will_return_the_connections_deletion_boolean($connection, $name, $database, $default)
     {
         $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
             ->shouldReceive('exists')
+            ->once()
+            ->withArgs([$name])
             ->andReturn(true)
             ->shouldReceive('delete')
+            ->withArgs([$name])
             ->andReturn($deleted = rand(1,2) == 1);
 
         expect(app(Engine::class)->delete('foobar'))->toEqual($deleted);
     }
 
-    /** @test */
-    public function if_the_database_given_is_the_default_database_the_connection_is_not_asked_to_delete_it()
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function if_the_database_given_is_the_default_database_the_connection_is_not_asked_to_delete_it($connection, $name, $database, $default)
     {
-        Config::set('hopper.default-database', 'database');
+        Config::set("database.connections.$connection.database", $default);
 
-        $this->mock(Connection::class)->shouldNotReceive('delete');
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldNotReceive('delete');
 
-        app(Engine::class)->delete('database');
+        app(Engine::class)->delete($default);
     }
 
-    /** @test */
-    public function current_asks_the_connection_to_return_a_database_object_based_on_the_filer_current_database()
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function current_builds_and_returns_a_database_object_using_the_connection_based_on_the_filer_current_database($connection, $name, $database)
     {
+        $database = is_callable($database) ? $database() : $database;
+
         $this->mock(Connection::class)
             ->shouldReceive('database')
             ->once()
-            ->withArgs(['hello-world'])
-            ->andReturn(new Database('hello-world', 'db', 'connection'));
+            ->withArgs([$name, false])
+            ->andReturn($database)
+            ->shouldReceive('name')
+            ->andReturn($connection);
 
         $this->mock(Filer::class)
             ->shouldReceive('currentHop')
             ->once()
-            ->andReturn('hello-world');
+            ->andReturn($name);
 
-        $database = app(Engine::class)->current();
+        $db = app(Engine::class)->current();
 
-        expect($database)->toBeInstanceOf(Database::class);
-        expect($database->name)->toEqual('hello-world');
-        expect($database->db_database)->toEqual('db');
-        expect($database->connection)->toEqual('connection');
+        expect($db)->toBeInstanceOf(Database::class);
+        expect($db->name)->toEqual($name);
+        expect($db->db_database)->toEqual($database);
+        expect($db->connection)->toEqual($connection);
     }
 
-    /** @test */
-    public function current_returns_null_if_the_filer_returns_null()
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function if_the_current_database_is_the_default_database_the_engine_tells_the_connection_such_when_calling_database($connection, $name, $database, $default)
     {
-        $this->mock(Connection::class)->shouldNotReceive('database');
+        Config::set("database.connections.$connection.database", $default);
+        $database = is_callable($database) ? $database() : $database;
+
+        $this->mock(Connection::class)
+            ->shouldReceive('database')
+            ->once()
+            ->withArgs([$default, true])
+            ->andReturn($database)
+            ->shouldReceive('name')
+            ->andReturn($connection);
+
+        $this->mock(Filer::class)
+            ->shouldReceive('currentHop')
+            ->once()
+            ->andReturn($default);
+
+        $db = app(Engine::class)->current();
+
+        expect($db)->toBeInstanceOf(Database::class);
+        expect($db->name)->toEqual($default);
+        expect($db->db_database)->toEqual($database);
+        expect($db->connection)->toEqual($connection);
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function current_returns_null_if_the_filer_returns_null($connection, $name, $database, $default)
+    {
+        $this->mock(Connection::class)
+            ->shouldNotReceive('database');
 
         $this->mock(Filer::class)
             ->shouldReceive('currentHop')
@@ -189,24 +300,30 @@ class EngineTest extends TestCase
         expect(app(Engine::class)->current())->toBeNull();
     }
 
-    /** @test */
-    public function if_the_database_to_be_used_is_the_configured_default_git_branch_the_configured_default_database_is_used()
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function if_the_database_to_be_used_is_the_configured_default_git_branch_the_configured_default_database_is_used($connection, $name, $database, $default)
     {
-        Config::set('hopper.default-database', 'database');
+        Config::set("database.connections.$connection.database", $default);
         Config::set('hopper.default-branch', 'staging');
 
-        $this->mock(Connection::class)->shouldNotReceive('create');
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldNotReceive('create');
 
         $this->mock(Filer::class)
             ->shouldReceive('setCurrentHop')
             ->once()
-            ->withArgs(['database']);
+            ->withArgs([$default]);
 
         app(Engine::class)->use('staging');
     }
 
    /**
-     * @dataProvider databaseDriverDataProvider
+     * @dataProvider databaseConnectionDataProvider
      * @test
      * */
     public function calling_boot_will_set_the_database_config_database_to_the_current_hop_for_the_configured_database_driver($connection, $name, $databaseFile)
@@ -221,7 +338,10 @@ class EngineTest extends TestCase
         $this->mock(Connection::class)
             ->shouldReceive('database')
             ->once()
-            ->andReturn(new Database($name, $database, $connection))
+            ->withArgs([$name, false])
+            ->andReturn($database)
+            ->shouldReceive('name')
+            ->andReturn($connection)
             ->shouldReceive('boot');
 
         app(Engine::class)->boot();
@@ -229,42 +349,34 @@ class EngineTest extends TestCase
         expect(config("database.connections.$connection.database"))->toEqual($database);
     }
 
-    /** @test */
-    public function when_the_engine_boots_it_asks_the_connection_to_boot()
+   /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function when_the_engine_boots_it_asks_the_connection_to_boot($connection, $name, $database)
     {
+        $database = is_callable($database) ? $database() : $database;
+
         $this->mock(Filer::class)
             ->shouldReceive('currentHop')
             ->andReturn('foobar');
 
         $this->mock(Connection::class)
             ->shouldReceive('database')
-            ->andReturn(new Database('foobar', 'db', 'foobar'))
+            ->andReturn($database)
+            ->shouldReceive('name')
+            ->andReturn($connection)
             ->shouldReceive('boot')
             ->once();
 
         app(Engine::class)->boot();
     }
 
-    /** @test */
-    public function if_the_filer_returns_no_currentHop_the_connection_is_not_updated()
-    {
-        $this->mock(Filer::class)
-            ->shouldReceive('currentHop')
-            ->andReturn(null);
-
-        Config::partialMock()
-            ->shouldReceive('get')
-            ->withArgs(['app.env'])
-            ->andReturn('testing')
-            ->shouldNotReceive('set');
-
-        app(Engine::class)->boot();
-    }
-
-    public function databaseDriverDataProvider()
+    public function databaseConnectionDataProvider()
     {
         return [
-            ['sqlite', 'foobar', fn() => database_path('foobar.sqlite')]
+            ['sqlite', 'foobar', fn() => database_path('foobar.sqlite'), 'database'],
+            ['mysql', 'foobar', 'hopper_foobar', 'hopper'],
         ];
     }
 }

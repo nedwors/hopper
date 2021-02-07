@@ -2,23 +2,24 @@
 
 namespace Nedwors\Hopper;
 
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\ServiceProvider;
-use Nedwors\Hopper\Connections\Sqlite;
-use Nedwors\Hopper\Console\CurrentCommand;
-use Nedwors\Hopper\Console\DeleteCommand;
-use Nedwors\Hopper\Console\HopCommand;
-use Nedwors\Hopper\Contracts\Connection;
-use Nedwors\Hopper\Contracts\Engine;
-use Nedwors\Hopper\Contracts\Filer;
-use Nedwors\Hopper\Facades\Hop;
-use Nedwors\Hopper\Filers\JsonFiler;
 use Nedwors\Hopper\Git\Git;
+use Nedwors\Hopper\Facades\Hop;
+use Nedwors\Hopper\Contracts\Filer;
+use Nedwors\Hopper\Contracts\Engine;
+use Nedwors\Hopper\Filers\JsonFiler;
+use Nedwors\Hopper\Connections\MySql;
+use Nedwors\Hopper\Connections\Sqlite;
+use Nedwors\Hopper\Console\HopCommand;
+use Illuminate\Support\ServiceProvider;
+use Nedwors\Hopper\Contracts\Connection;
+use Nedwors\Hopper\Console\DeleteCommand;
+use Nedwors\Hopper\Console\CurrentCommand;
 
 class HopperServiceProvider extends ServiceProvider
 {
     protected static $connections = [
-        'sqlite' => Sqlite::class
+        'sqlite' => Sqlite::class,
+        'mysql' => MySql::class
     ];
 
     public function register()
@@ -26,7 +27,7 @@ class HopperServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'hopper');
 
         $this->app->bind(Filer::class, JsonFiler::class);
-        $this->app->bind(Connection::class, static::$connections[config('hopper.connection')]);
+        $this->app->bind(Connection::class, static::$connections[config('database.default', 'sqlite')]);
         $this->app->bind(Engine::class, Engines\Engine::class);
 
         $this->app->singleton('hopper', fn() => new Hopper(app(Engine::class)));
@@ -81,7 +82,7 @@ class HopperServiceProvider extends ServiceProvider
             return false;
         }
 
-        if (config('app.env') === "production") {
+        if (config('app.env') !== "local") {
             return false;
         }
 
