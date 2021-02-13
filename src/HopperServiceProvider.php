@@ -24,10 +24,14 @@ class HopperServiceProvider extends ServiceProvider
 
     public function register()
     {
+        if (!$this->isUsingHopperConnection()) {
+            return;
+        }
+
         $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'hopper');
 
         $this->app->bind(Filer::class, JsonFiler::class);
-        $this->app->bind(Connection::class, static::$connections[config('database.default', 'sqlite')]);
+        $this->app->bind(Connection::class, static::$connections[config('database.default')]);
         $this->app->bind(Engine::class, Engines\Engine::class);
 
         $this->app->singleton('hopper', fn() => new Hopper(app(Engine::class)));
@@ -36,6 +40,9 @@ class HopperServiceProvider extends ServiceProvider
 
     public function boot()
     {
+        if (!$this->isUsingHopperConnection()) {
+            return;
+        }
         /*
          * Optional methods to load your package assets
          */
@@ -74,5 +81,10 @@ class HopperServiceProvider extends ServiceProvider
                 Hop::boot();
             }
         }
+    }
+
+    protected function isUsingHopperConnection()
+    {
+        return array_key_exists(config('database.default'), static::$connections);
     }
 }
