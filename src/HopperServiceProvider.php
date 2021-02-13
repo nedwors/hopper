@@ -70,22 +70,9 @@ class HopperServiceProvider extends ServiceProvider
                 HopCommand::class
             ]);
 
-            if ($this->canBoot()) {
+            if (!$this->app->runningUnitTests()) {
                 Hop::boot();
             }
         }
-    }
-
-    protected function canBoot()
-    {
-        if (!env("APP_KEY")) {
-            return false;
-        }
-
-        if (config('app.env') !== "local") {
-            return false;
-        }
-
-        return true;
     }
 }
