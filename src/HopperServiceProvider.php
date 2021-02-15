@@ -2,89 +2,57 @@
 
 namespace Nedwors\Hopper;
 
-use Nedwors\Hopper\Git\Git;
-use Nedwors\Hopper\Facades\Hop;
-use Nedwors\Hopper\Contracts\Filer;
-use Nedwors\Hopper\Contracts\Engine;
-use Nedwors\Hopper\Filers\JsonFiler;
-use Nedwors\Hopper\Connections\MySql;
-use Nedwors\Hopper\Connections\Sqlite;
-use Nedwors\Hopper\Console\HopCommand;
-use Illuminate\Support\ServiceProvider;
-use Nedwors\Hopper\Contracts\Connection;
-use Nedwors\Hopper\Console\DeleteCommand;
 use Nedwors\Hopper\Console\CurrentCommand;
+use Nedwors\Hopper\Console\DeleteCommand;
+use Nedwors\Hopper\Console\HopCommand;
+use Nedwors\Hopper\Contracts\Connection;
+use Nedwors\Hopper\Contracts\Engine;
+use Nedwors\Hopper\Contracts\Filer;
+use Nedwors\Hopper\Facades\Hop;
+use Nedwors\Hopper\Filers\JsonFiler;
+use Nedwors\Hopper\Git\Git;
+use Spatie\LaravelPackageTools\Package;
+use Spatie\LaravelPackageTools\PackageServiceProvider;
 
-class HopperServiceProvider extends ServiceProvider
+class HopperServiceProvider extends PackageServiceProvider
 {
-    protected static $connections = [
-        'sqlite' => Sqlite::class,
-        'mysql' => MySql::class
+    public $bindings = [
+        Filer::class => JsonFiler::class,
+        Engine::class => Engines\Engine::class,
     ];
 
-    public function register()
+    public $singletons = [
+        'hopper' => Hopper::class,
+        'hopper-git' => Git::class,
+    ];
+
+    public function configurePackage(Package $package): void
     {
-        if (!$this->isUsingHopperConnection()) {
+        $package->name('hopper')
+            ->hasConfigFile()
+            ->hasCommands([CurrentCommand::class, DeleteCommand::class, HopCommand::class]);
+    }
+
+    public function packageRegistered()
+    {
+        $connectionDriver = config('hopper.connections')[config('database.default', 'sqlite')]['driver'];
+        $this->app->bind(Connection::class, $connectionDriver);
+    }
+
+    public function packageBooted()
+    {
+        if (!$this->app->runningInConsole()) {
             return;
         }
 
-        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'hopper');
-
-        $this->app->bind(Filer::class, JsonFiler::class);
-        $this->app->bind(Connection::class, static::$connections[config('database.default')]);
-        $this->app->bind(Engine::class, Engines\Engine::class);
-
-        $this->app->singleton('hopper', fn() => new Hopper(app(Engine::class)));
-        $this->app->singleton('hopper-git', fn() => new Git);
-    }
-
-    public function boot()
-    {
-        if (!$this->isUsingHopperConnection()) {
+        if (!config('app.key')) {
             return;
         }
-        /*
-         * Optional methods to load your package assets
-         */
-        // $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'hopper');
-        // $this->loadViewsFrom(__DIR__.'/../resources/views', 'hopper');
-        // $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        // $this->loadRoutesFrom(__DIR__.'/routes.php');
 
-        if ($this->app->runningInConsole()) {
-            $this->publishes([
-                __DIR__.'/../config/config.php' => config_path('hopper.php'),
-            ], 'config');
-
-            // Publishing the views.
-            /*$this->publishes([
-                __DIR__.'/../resources/views' => resource_path('views/vendor/hopper'),
-            ], 'views');*/
-
-            // Publishing assets.
-            /*$this->publishes([
-                __DIR__.'/../resources/assets' => public_path('vendor/hopper'),
-            ], 'assets');*/
-
-            // Publishing the translation files.
-            /*$this->publishes([
-                __DIR__.'/../resources/lang' => resource_path('lang/vendor/hopper'),
-            ], 'lang');*/
-
-            $this->commands([
-                CurrentCommand::class,
-                DeleteCommand::class,
-                HopCommand::class
-            ]);
-
-            if (!$this->app->runningUnitTests()) {
-                Hop::boot();
-            }
+        if (config('app.env') !== "local") {
+            return;
         }
-    }
 
-    protected function isUsingHopperConnection()
-    {
-        return array_key_exists(config('database.default'), static::$connections);
+        Hop::boot();
     }
 }
