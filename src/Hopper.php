@@ -30,6 +30,17 @@ class Hopper
 
     public function boot()
     {
+        if (!$this->canBoot()) {
+            return;
+        }
+
         $this->engine->boot();
+    }
+
+    protected function canBoot()
+    {
+        return collect(config('hopper.boot-checks'))
+                ->map(fn($check) => app($check))
+                ->every(fn($check) => $check->check());
     }
 }

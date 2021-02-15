@@ -7,6 +7,11 @@ use Orchestra\Testbench;
 
 abstract class TestCase extends Testbench\TestCase
 {
+    protected function getEnvironmentSetUp($app)
+    {
+        $app->config->set('database.default', 'sqlite');
+    }
+
     protected function getPackageProviders($app)
     {
         return [
