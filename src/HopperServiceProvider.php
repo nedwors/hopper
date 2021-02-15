@@ -41,15 +41,7 @@ class HopperServiceProvider extends PackageServiceProvider
 
     public function packageBooted()
     {
-        if (!$this->app->runningInConsole()) {
-            return;
-        }
-
-        if (!config('app.key')) {
-            return;
-        }
-
-        if (config('app.env') !== "local") {
+        if ($this->app->runningUnitTests()) {
             return;
         }
 
