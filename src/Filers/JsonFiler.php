@@ -19,6 +19,11 @@ class JsonFiler implements Filer
         File::put($this->path, json_encode(['current' => $database]));
     }
 
+    public function flushCurrentHop()
+    {
+        File::put($this->path, json_encode(['current' => null]));
+    }
+
     public function currentHop(): ?string
     {
         if (!File::exists($this->path)) {

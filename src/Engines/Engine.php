@@ -24,11 +24,9 @@ class Engine implements Contracts\Engine
     {
         $database = $this->resolveDatabaseName($database);
 
-        if ($this->shouldCreate($database)) {
-            $this->connection->create($database);
-        }
-
-        $this->filer->setCurrentHop($database);
+        $this->isDefault($database)
+            ? $this->useDefault()
+            : $this->useNonDefault($database);
     }
 
     protected function resolveDatabaseName(string $database)
@@ -36,17 +34,18 @@ class Engine implements Contracts\Engine
         return $database === Git::default() ? $this->defaultDatabase() : $database;
     }
 
-    protected function shouldCreate(string $database): bool
+    protected function useDefault()
     {
-        if ($this->isDefault($database)) {
-            return false;
+        $this->filer->flushCurrentHop();
+    }
+
+    protected function useNonDefault(string $database)
+    {
+        if (!$this->exists($database)) {
+            $this->connection->create($database);
         }
 
-        if ($this->connection->exists($database)) {
-            return false;
-        }
-
-        return true;
+        $this->filer->setCurrentHop($database);
     }
 
     public function exists(string $database): bool
@@ -60,7 +59,7 @@ class Engine implements Contracts\Engine
             return false;
         }
 
-        if (!$this->connection->exists($database)) {
+        if (!$this->exists($database)) {
             return false;
         }
 

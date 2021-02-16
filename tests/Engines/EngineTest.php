@@ -112,22 +112,41 @@ class EngineTest extends TestCase
      * @dataProvider databaseConnectionDataProvider
      * @test
      * */
-    public function calling_use_with_the_configured_default_database_name_will_not_create_a_database_but_still_file_the_current_hop($connection, $name, $database, $default)
+    public function calling_use_with_the_configured_default_database_name_will_not_create_a_database_and_will_flush_the_currentHop($connection, $name, $database, $default)
     {
         Config::set("database.connections.$connection.database", $default);
 
         $this->mock(Connection::class)
             ->shouldReceive('name')
-            ->once()
             ->andReturn($connection)
             ->shouldNotReceive('create');
 
         $this->mock(Filer::class)
-            ->shouldReceive('setCurrentHop')
-            ->once()
-            ->withArgs([$default]);
+            ->shouldReceive('flushCurrentHop')
+            ->once();
 
         app(Engine::class)->use($default);
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function calling_use_with_the_configured_default_git_branch_will_function_the_same_as_calling_use_with_the_default_database($connection, $name, $database, $default)
+    {
+        Config::set("database.connections.$connection.database", $default);
+        Config::set('hopper.default-branch', 'staging');
+
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldNotReceive('create');
+
+        $this->mock(Filer::class)
+            ->shouldReceive('flushCurrentHop')
+            ->once();
+
+        app(Engine::class)->use('staging');
     }
 
     /**
@@ -298,28 +317,6 @@ class EngineTest extends TestCase
             ->andReturn(null);
 
         expect(app(Engine::class)->current())->toBeNull();
-    }
-
-    /**
-     * @dataProvider databaseConnectionDataProvider
-     * @test
-     * */
-    public function if_the_database_to_be_used_is_the_configured_default_git_branch_the_configured_default_database_is_used($connection, $name, $database, $default)
-    {
-        Config::set("database.connections.$connection.database", $default);
-        Config::set('hopper.default-branch', 'staging');
-
-        $this->mock(Connection::class)
-            ->shouldReceive('name')
-            ->andReturn($connection)
-            ->shouldNotReceive('create');
-
-        $this->mock(Filer::class)
-            ->shouldReceive('setCurrentHop')
-            ->once()
-            ->withArgs([$default]);
-
-        app(Engine::class)->use('staging');
     }
 
    /**
