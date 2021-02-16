@@ -29,11 +29,6 @@ class Engine implements Contracts\Engine
             : $this->useNonDefault($database);
     }
 
-    protected function resolveDatabaseName(string $database)
-    {
-        return $database === Git::default() ? $this->defaultDatabase() : $database;
-    }
-
     protected function useDefault()
     {
         $this->filer->flushCurrentHop();
@@ -55,6 +50,8 @@ class Engine implements Contracts\Engine
 
     public function delete(string $database): bool
     {
+        $database = $this->resolveDatabaseName($database);
+
         if ($this->isDefault($database)) {
             return false;
         }
@@ -64,6 +61,11 @@ class Engine implements Contracts\Engine
         }
 
         return $this->connection->delete($database);
+    }
+
+    protected function resolveDatabaseName(string $database)
+    {
+        return $database === Git::default() ? $this->defaultDatabase() : $database;
     }
 
     public function current(): ?Database

@@ -247,6 +247,23 @@ class EngineTest extends TestCase
      * @dataProvider databaseConnectionDataProvider
      * @test
      * */
+    public function calling_delete_with_the_configured_default_git_branch_will_function_the_same_as_calling_delete_with_the_default_database($connection, $name, $database, $default)
+    {
+        Config::set("database.connections.$connection.database", $default);
+        Config::set('hopper.default-branch', 'staging');
+
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldNotReceive('delete');
+
+        app(Engine::class)->delete('staging');
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
     public function current_builds_and_returns_a_database_object_using_the_connection_based_on_the_filer_current_database($connection, $name, $database)
     {
         $database = is_callable($database) ? $database() : $database;
