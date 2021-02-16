@@ -1,5 +1,7 @@
 <?php
 
+use Nedwors\Hopper\BootChecks\Environment;
+
 return [
     'default-branch' => 'main',
 
@@ -14,4 +16,8 @@ return [
         ],
 
     ],
+
+    'boot-checks' => [
+        Environment::class
+    ]
 ];

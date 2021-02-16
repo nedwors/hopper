@@ -23,13 +23,9 @@ class Sqlite implements Connection
         return File::delete($this->database($name));
     }
 
-    public function database(string $name, bool $isDefault = false): string
+    public function database(string $name): string
     {
-        if (!$isDefault) {
-            $name = $this->hopperDirectory() . $name;
-        }
-
-        return database_path(Str::finish($name, '.sqlite'));
+        return database_path(Str::finish("{$this->hopperDirectory()}$name", '.sqlite'));
     }
 
     public function name(): string

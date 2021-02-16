@@ -24,29 +24,23 @@ class Engine implements Contracts\Engine
     {
         $database = $this->resolveDatabaseName($database);
 
-        if ($this->shouldCreate($database)) {
+        $this->isDefault($database)
+            ? $this->useDefault()
+            : $this->useNonDefault($database);
+    }
+
+    protected function useDefault()
+    {
+        $this->filer->flushCurrentHop();
+    }
+
+    protected function useNonDefault(string $database)
+    {
+        if (!$this->exists($database)) {
             $this->connection->create($database);
         }
 
         $this->filer->setCurrentHop($database);
-    }
-
-    protected function resolveDatabaseName(string $database)
-    {
-        return $database === Git::default() ? $this->defaultDatabase() : $database;
-    }
-
-    protected function shouldCreate(string $database): bool
-    {
-        if ($this->isDefault($database)) {
-            return false;
-        }
-
-        if ($this->connection->exists($database)) {
-            return false;
-        }
-
-        return true;
     }
 
     public function exists(string $database): bool
@@ -56,15 +50,22 @@ class Engine implements Contracts\Engine
 
     public function delete(string $database): bool
     {
+        $database = $this->resolveDatabaseName($database);
+
         if ($this->isDefault($database)) {
             return false;
         }
 
-        if (!$this->connection->exists($database)) {
+        if (!$this->exists($database)) {
             return false;
         }
 
         return $this->connection->delete($database);
+    }
+
+    protected function resolveDatabaseName(string $database)
+    {
+        return $database === Git::default() ? $this->defaultDatabase() : $database;
     }
 
     public function current(): ?Database
@@ -75,8 +76,9 @@ class Engine implements Contracts\Engine
 
         return new Database(
             $name,
-            $this->connection->database($name, $this->isDefault($name)),
-            $this->connection->name());
+            $this->connection->database($name),
+            $this->connection->name()
+        );
     }
 
     protected function isDefault(string $name)
@@ -99,7 +101,7 @@ class Engine implements Contracts\Engine
 
         Config::set(
             "database.connections.{$database->connection}.database",
-            env('DB_DATABASE', $database->db_database)
+            $database->db_database
         );
     }
 }

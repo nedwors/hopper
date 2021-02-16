@@ -37,6 +37,21 @@ class JsonFilerTest extends TestCase
     }
 
     /** @test */
+    public function when_flushCurrentHop_is_called_the_hopperJson_file_is_updated_with_null_as_the_current_database_name()
+    {
+        File::partialMock()
+            ->shouldReceive('put')
+            ->once()
+            ->withArgs(function ($jsonPath, $database) {
+                expect($jsonPath)->toEqual($this->jsonPath);
+                expect($database)->toEqual(json_encode(['current' => null]));
+                return true;
+            });
+
+        app(Filer::class)->flushCurrentHop('database.sqlite');
+    }
+
+    /** @test */
     public function currentHop_returns_the_value_in_the_hopperJson_file()
     {
         File::partialMock()

@@ -80,14 +80,6 @@ class SqliteTest extends TestCase
     }
 
     /** @test */
-    public function the_default_database_is_returned_without_the_directory()
-    {
-        $database = app(Sqlite::class)->database('database', $isDefault = true);
-
-        expect($database)->toEqual(database_path("database.sqlite"));
-    }
-
-    /** @test */
     public function when_it_boots_the_configured_hopper_directory_is_created_if_it_doesnt_exist()
     {
         Config::set('hopper.connections.sqlite.datbase-path', 'hopper/');
