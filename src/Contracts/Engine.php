@@ -10,7 +10,7 @@ interface Engine
 
     public function exists(string $database): bool;
 
-    public function delete(string $database): bool;
+    public function delete(string $database);
 
     public function current(): ?Database;
 

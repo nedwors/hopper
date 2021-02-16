@@ -8,6 +8,7 @@ use Nedwors\Hopper\Contracts\Connection;
 use Nedwors\Hopper\Contracts\Filer;
 use Nedwors\Hopper\Database;
 use Nedwors\Hopper\Events\DatabaseCreated;
+use Nedwors\Hopper\Events\DatabaseDeleted;
 use Nedwors\Hopper\Facades\Git;
 
 class Engine implements Contracts\Engine
@@ -57,19 +58,20 @@ class Engine implements Contracts\Engine
         return $this->connection->exists($database);
     }
 
-    public function delete(string $database): bool
+    public function delete(string $database)
     {
         $database = $this->resolveDatabaseName($database);
 
         if ($this->isDefault($database)) {
-            return false;
+            return;
         }
 
         if (!$this->exists($database)) {
-            return false;
+            return;
         }
 
-        return $this->connection->delete($database);
+        $this->connection->delete($database);
+        DatabaseDeleted::dispatch($database);
     }
 
     protected function resolveDatabaseName(string $database)
