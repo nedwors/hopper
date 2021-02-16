@@ -7,6 +7,7 @@ use Nedwors\Hopper\Contracts;
 use Nedwors\Hopper\Contracts\Connection;
 use Nedwors\Hopper\Contracts\Filer;
 use Nedwors\Hopper\Database;
+use Nedwors\Hopper\Events\DatabaseCreated;
 use Nedwors\Hopper\Facades\Git;
 
 class Engine implements Contracts\Engine
@@ -36,11 +37,19 @@ class Engine implements Contracts\Engine
 
     protected function useNonDefault(string $database)
     {
-        if (!$this->exists($database)) {
-            $this->connection->create($database);
-        }
+        $this->createIfNeeded($database);
 
         $this->filer->setCurrentHop($database);
+    }
+
+    protected function createIfNeeded($database)
+    {
+        if ($this->exists($database)) {
+            return;
+        }
+
+        $this->connection->create($database);
+        DatabaseCreated::dispatch($database);
     }
 
     public function exists(string $database): bool

@@ -2,10 +2,12 @@
 namespace Nedwors\Hopper\Tests\Engines;
 
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Event;
 use Nedwors\Hopper\Contracts\Connection;
 use Nedwors\Hopper\Contracts\Filer;
 use Nedwors\Hopper\Database;
 use Nedwors\Hopper\Engines\Engine;
+use Nedwors\Hopper\Events\DatabaseCreated;
 use Nedwors\Hopper\Tests\TestCase;
 
 class EngineTest extends TestCase
@@ -147,6 +149,54 @@ class EngineTest extends TestCase
             ->once();
 
         app(Engine::class)->use('staging');
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function when_a_database_is_created_an_DatabaseCreated_event_is_fired($connection, $name, $database, $default)
+    {
+        $database = is_callable($database) ? $database() : $database;
+        Config::set("database.connections.$connection.database", $default);
+
+        Event::assertNotDispatched(DatabaseCreated::class);
+
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldReceive('exists')
+            ->andReturn(false)
+            ->shouldReceive('create')
+            ->once()
+            ->withArgs([$name]);
+
+        app(Engine::class)->use($name);
+
+        Event::assertDispatched(DatabaseCreated::class, fn($event) => $event->name == $name);
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function when_a_database_is_not_created_an_DatabaseCreated_event_is_not_fired($connection, $name, $database, $default)
+    {
+        $database = is_callable($database) ? $database() : $database;
+        Config::set("database.connections.$connection.database", $default);
+
+        Event::assertNotDispatched(DatabaseCreated::class);
+
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldReceive('exists')
+            ->andReturn(true)
+            ->shouldNotReceive('create');
+
+        app(Engine::class)->use($name);
+
+        Event::assertNotDispatched(DatabaseCreated::class);
     }
 
     /**
