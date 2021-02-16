@@ -2,7 +2,6 @@
 
 namespace Nedwors\Hopper\BootChecks;
 
-use Illuminate\Support\Facades\App;
 use Nedwors\Hopper\Contracts\BootCheck;
 
 class Environment implements BootCheck

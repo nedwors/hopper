@@ -101,7 +101,7 @@ class Engine implements Contracts\Engine
 
         Config::set(
             "database.connections.{$database->connection}.database",
-            env('DB_DATABASE', $database->db_database)
+            $database->db_database
         );
     }
 }
