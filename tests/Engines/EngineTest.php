@@ -254,7 +254,7 @@ class EngineTest extends TestCase
         $this->mock(Connection::class)
             ->shouldReceive('database')
             ->once()
-            ->withArgs([$name, false])
+            ->withArgs([$name])
             ->andReturn($database)
             ->shouldReceive('name')
             ->andReturn($connection);
@@ -268,36 +268,6 @@ class EngineTest extends TestCase
 
         expect($db)->toBeInstanceOf(Database::class);
         expect($db->name)->toEqual($name);
-        expect($db->db_database)->toEqual($database);
-        expect($db->connection)->toEqual($connection);
-    }
-
-    /**
-     * @dataProvider databaseConnectionDataProvider
-     * @test
-     * */
-    public function if_the_current_database_is_the_default_database_the_engine_tells_the_connection_such_when_calling_database($connection, $name, $database, $default)
-    {
-        Config::set("database.connections.$connection.database", $default);
-        $database = is_callable($database) ? $database() : $database;
-
-        $this->mock(Connection::class)
-            ->shouldReceive('database')
-            ->once()
-            ->withArgs([$default, true])
-            ->andReturn($database)
-            ->shouldReceive('name')
-            ->andReturn($connection);
-
-        $this->mock(Filer::class)
-            ->shouldReceive('currentHop')
-            ->once()
-            ->andReturn($default);
-
-        $db = app(Engine::class)->current();
-
-        expect($db)->toBeInstanceOf(Database::class);
-        expect($db->name)->toEqual($default);
         expect($db->db_database)->toEqual($database);
         expect($db->connection)->toEqual($connection);
     }
@@ -335,7 +305,7 @@ class EngineTest extends TestCase
         $this->mock(Connection::class)
             ->shouldReceive('database')
             ->once()
-            ->withArgs([$name, false])
+            ->withArgs([$name])
             ->andReturn($database)
             ->shouldReceive('name')
             ->andReturn($connection)

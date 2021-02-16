@@ -12,7 +12,7 @@ interface Connection
 
     public function delete(string $name): bool;
 
-    public function database(string $name, bool $isDefault = false): string;
+    public function database(string $name): string;
 
     public function boot();
 }

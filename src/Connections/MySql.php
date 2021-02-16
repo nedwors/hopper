@@ -38,11 +38,11 @@ class MySql implements Connection
         return true;
     }
 
-    public function database(string $name, bool $isDefault = false): string
+    public function database(string $name): string
     {
         $name = str_replace('-', '_', $name);
 
-        return $isDefault ? $name : "{$this->prefix}$name";
+        return "{$this->prefix}$name";
     }
 
     public function name(): string

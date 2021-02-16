@@ -74,8 +74,9 @@ class Engine implements Contracts\Engine
 
         return new Database(
             $name,
-            $this->connection->database($name, $this->isDefault($name)),
-            $this->connection->name());
+            $this->connection->database($name),
+            $this->connection->name()
+        );
     }
 
     protected function isDefault(string $name)
