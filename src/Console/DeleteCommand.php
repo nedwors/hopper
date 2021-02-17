@@ -3,6 +3,9 @@
 namespace Nedwors\Hopper\Console;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Event;
+use Nedwors\Hopper\Events\DatabaseDeleted;
+use Nedwors\Hopper\Events\DatabaseNotDeleted;
 use Nedwors\Hopper\Facades\Hop;
 
 class DeleteCommand extends Command
@@ -13,14 +16,30 @@ class DeleteCommand extends Command
 
     public function handle()
     {
-        $database = $this->argument('database');
-
-        if (!$database) {
+        if (!$database = $this->argument('database')) {
             return $this->warn('Please provide a database to be deleted');
         }
 
-        Hop::delete($database)
-            ? $this->info("Successfully deleted <fg=yellow>$database</>")
-            : $this->error("$database was not deleted");
+        $this->listen();
+        Hop::delete($database);
+    }
+
+    protected function listen()
+    {
+        Event::listen(DatabaseDeleted::class, function ($event) {
+            $this->info("Successfully deleted <fg=yellow>$event->name</>");
+        });
+
+        Event::listen(DatabaseNotDeleted::class, function ($event) {
+            $this->info("<fg=yellow>$event->name</> {$this->notDeletedMessage($event->reason)}");
+        });
+    }
+
+    protected function notDeletedMessage($reason)
+    {
+        return [
+            DatabaseNotDeleted::DOES_NOT_EXIST => 'does not exist, so it was not deleted',
+            DatabaseNotDeleted::DEFAULT => 'is the default database, so it was not deleted',
+        ][$reason];
     }
 }

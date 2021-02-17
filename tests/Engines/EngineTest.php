@@ -21,6 +21,7 @@ class EngineTest extends TestCase
         parent::setUp();
 
         $this->mock(Filer::class)->shouldReceive('setCurrentHop');
+        Event::fake();
     }
 
     /**

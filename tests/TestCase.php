@@ -11,8 +11,6 @@ abstract class TestCase extends Testbench\TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        Event::fake();
     }
 
     protected function getEnvironmentSetUp($app)

@@ -23,9 +23,9 @@ class Hopper
         return $this->engine->current();
     }
 
-    public function delete(string $database): bool
+    public function delete(string $database)
     {
-        return $this->engine->delete($database);
+        $this->engine->delete($database);
     }
 
     public function boot()
