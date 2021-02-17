@@ -10,14 +10,15 @@ use Illuminate\Support\Facades\Config;
 use Nedwors\Hopper\Contracts\Connection;
 use Nedwors\Hopper\Events\DatabaseCreated;
 use Nedwors\Hopper\Events\DatabaseDeleted;
-use Nedwors\Hopper\Events\DatabaseNotDeleted;
-use Nedwors\Hopper\Events\HoppedToDatabase;
 use Nedwors\Hopper\Events\HoppedToDefault;
+use Nedwors\Hopper\Events\HoppedToDatabase;
+use Nedwors\Hopper\Events\DatabaseNotDeleted;
 
 class Engine implements Contracts\Engine
 {
     protected Connection $connection;
     protected Filer $filer;
+    protected $defaultDatabase = null;
 
     public function __construct(Connection $connection, Filer $filer)
     {
@@ -37,7 +38,7 @@ class Engine implements Contracts\Engine
     protected function useDefault($database)
     {
         $this->filer->flushCurrentHop();
-        HoppedToDefault::dispatch($database);
+        HoppedToDefault::dispatch($this->defaultDatabase ?? $database);
     }
 
     protected function useNonDefault(string $database)
@@ -116,6 +117,8 @@ class Engine implements Contracts\Engine
         if (!$database = $this->current()) {
             return;
         }
+
+        $this->defaultDatabase = $this->defaultDatabase();
 
         Config::set(
             "database.connections.{$database->connection}.database",
