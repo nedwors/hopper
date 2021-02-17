@@ -10,6 +10,8 @@ use Nedwors\Hopper\Engines\Engine;
 use Nedwors\Hopper\Events\DatabaseCreated;
 use Nedwors\Hopper\Events\DatabaseDeleted;
 use Nedwors\Hopper\Events\DatabaseNotDeleted;
+use Nedwors\Hopper\Events\HoppedToDatabase;
+use Nedwors\Hopper\Events\HoppedToDefault;
 use Nedwors\Hopper\Tests\TestCase;
 
 class EngineTest extends TestCase
@@ -116,6 +118,35 @@ class EngineTest extends TestCase
      * @dataProvider databaseConnectionDataProvider
      * @test
      * */
+    public function when_a_hop_is_filed_a_HoppedDatabase_event_is_fired($connection, $name, $database, $default)
+    {
+        $database = is_callable($database) ? $database() : $database;
+
+        Event::assertNotDispatched(HoppedToDatabase::class);
+
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldReceive('exists')
+            ->andReturn(true);
+
+        $this->mock(Filer::class)
+            ->shouldReceive('setCurrentHop')
+            ->once()
+            ->withArgs([$name]);
+
+        app(Engine::class)->use($name);
+
+        Event::assertDispatched(HoppedToDatabase::class, function ($event) use ($name) {
+            $this->assertEquals($name, $event->name);
+            return true;
+        });
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
     public function calling_use_with_the_configured_default_database_name_will_not_create_a_database_and_will_flush_the_currentHop($connection, $name, $database, $default)
     {
         Config::set("database.connections.$connection.database", $default);
@@ -151,6 +182,30 @@ class EngineTest extends TestCase
             ->once();
 
         app(Engine::class)->use('staging');
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function when_the_current_hop_is_flushed_a_HoppedToDefault_event_is_fired($connection, $name, $database, $default)
+    {
+        Config::set("database.connections.$connection.database", $default);
+
+        Event::assertNotDispatched(HoppedToDefault::class);
+
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldNotReceive('create');
+
+        $this->mock(Filer::class)
+            ->shouldReceive('flushCurrentHop')
+            ->once();
+
+        app(Engine::class)->use($default);
+
+        Event::assertDispatched(HoppedToDefault::class);
     }
 
     /**

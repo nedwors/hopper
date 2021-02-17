@@ -2,15 +2,17 @@
 
 namespace Nedwors\Hopper\Engines;
 
-use Illuminate\Support\Facades\Config;
-use Nedwors\Hopper\Contracts;
-use Nedwors\Hopper\Contracts\Connection;
-use Nedwors\Hopper\Contracts\Filer;
 use Nedwors\Hopper\Database;
+use Nedwors\Hopper\Contracts;
+use Nedwors\Hopper\Facades\Git;
+use Nedwors\Hopper\Contracts\Filer;
+use Illuminate\Support\Facades\Config;
+use Nedwors\Hopper\Contracts\Connection;
 use Nedwors\Hopper\Events\DatabaseCreated;
 use Nedwors\Hopper\Events\DatabaseDeleted;
 use Nedwors\Hopper\Events\DatabaseNotDeleted;
-use Nedwors\Hopper\Facades\Git;
+use Nedwors\Hopper\Events\HoppedToDatabase;
+use Nedwors\Hopper\Events\HoppedToDefault;
 
 class Engine implements Contracts\Engine
 {
@@ -35,6 +37,7 @@ class Engine implements Contracts\Engine
     protected function useDefault()
     {
         $this->filer->flushCurrentHop();
+        HoppedToDefault::dispatch();
     }
 
     protected function useNonDefault(string $database)
@@ -42,6 +45,7 @@ class Engine implements Contracts\Engine
         $this->createIfNeeded($database);
 
         $this->filer->setCurrentHop($database);
+        HoppedToDatabase::dispatch($database);
     }
 
     protected function createIfNeeded($database)
