@@ -30,14 +30,14 @@ class Engine implements Contracts\Engine
         $database = $this->resolveDatabaseName($database);
 
         $this->isDefault($database)
-            ? $this->useDefault()
+            ? $this->useDefault($database)
             : $this->useNonDefault($database);
     }
 
-    protected function useDefault()
+    protected function useDefault($database)
     {
         $this->filer->flushCurrentHop();
-        HoppedToDefault::dispatch();
+        HoppedToDefault::dispatch($database);
     }
 
     protected function useNonDefault(string $database)
