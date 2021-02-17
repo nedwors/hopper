@@ -9,6 +9,7 @@ use Nedwors\Hopper\Database;
 use Nedwors\Hopper\Engines\Engine;
 use Nedwors\Hopper\Events\DatabaseCreated;
 use Nedwors\Hopper\Events\DatabaseDeleted;
+use Nedwors\Hopper\Events\DatabaseNotDeleted;
 use Nedwors\Hopper\Tests\TestCase;
 
 class EngineTest extends TestCase
@@ -334,6 +335,55 @@ class EngineTest extends TestCase
         app(Engine::class)->delete($name);
 
         Event::assertNotDispatched(DatabaseDeleted::class);
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function a_DatabaseNotDeleted_event_is_dispatched_when_a_database_is_not_deleted_if_the_database_doesnt_exist($connection, $name)
+    {
+        Event::assertNotDispatched(DatabaseNotDeleted::class);
+
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldReceive('exists')
+            ->withArgs([$name])
+            ->andReturn(false)
+            ->shouldNotReceive('delete');
+
+        app(Engine::class)->delete($name);
+
+        Event::assertDispatched(DatabaseNotDeleted::class, function ($event) use ($name) {
+            $this->assertEquals($name, $event->name);
+            $this->assertEquals(DatabaseNotDeleted::DOES_NOT_EXIST, $event->reason);
+            return true;
+        });
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function a_DatabaseNotDeleted_event_is_dispatched_when_a_database_is_not_deleted_if_the_database_is_the_default_database($connection, $name, $database, $default)
+    {
+        Event::assertNotDispatched(DatabaseNotDeleted::class);
+
+        Config::set("database.connections.$connection.database", $default);
+
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldNotReceive('delete');
+
+        app(Engine::class)->delete($default);
+
+        Event::assertDispatched(DatabaseNotDeleted::class, function ($event) use ($default) {
+            $this->assertEquals($default, $event->name);
+            $this->assertEquals(DatabaseNotDeleted::DEFAULT, $event->reason);
+            return true;
+        });
     }
 
     /**

@@ -9,6 +9,7 @@ use Nedwors\Hopper\Contracts\Filer;
 use Nedwors\Hopper\Database;
 use Nedwors\Hopper\Events\DatabaseCreated;
 use Nedwors\Hopper\Events\DatabaseDeleted;
+use Nedwors\Hopper\Events\DatabaseNotDeleted;
 use Nedwors\Hopper\Facades\Git;
 
 class Engine implements Contracts\Engine
@@ -63,10 +64,12 @@ class Engine implements Contracts\Engine
         $database = $this->resolveDatabaseName($database);
 
         if ($this->isDefault($database)) {
+            DatabaseNotDeleted::dispatch($database, DatabaseNotDeleted::DEFAULT);
             return;
         }
 
         if (!$this->exists($database)) {
+            DatabaseNotDeleted::dispatch($database, DatabaseNotDeleted::DOES_NOT_EXIST);
             return;
         }
 
