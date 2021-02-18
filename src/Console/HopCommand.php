@@ -30,6 +30,11 @@ class HopCommand extends Command
     {
         Event::listen(DatabaseCreated::class, function ($event) {
             $this->info("<fg=yellow>$event->name</> was created");
+            if ($this->confirm("Do you want to run the post-creation steps for $event->name?")) {
+                $this->info('Ok, running now...');
+                Hop::handlePostCreation();
+                $this->info('All post-creation steps run');
+            }
         });
 
         Event::listen(HoppedToDatabase::class, function ($event) {

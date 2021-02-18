@@ -67,21 +67,24 @@ class HopCommandTest extends TestCase
     }
 
     /** @test */
-    public function if_hopper_fires_a_DatabaseCreated_event_a_message_is_displayed()
+    public function if_hopper_fires_a_DatabaseCreated_event_a_message_is_displayed_and_a_confirmation_is_shown()
     {
         Hop::swap(new FiresDatabaseCreatedEvent);
 
-        $this->artisan('hop test')->expectsOutput('test was created');
+        $this->artisan('hop test')
+            ->expectsOutput('test was created')
+            ->expectsConfirmation('Do you want to run the post-creation steps for test?');
     }
 
     /** @test */
-    public function if_hopper_fires_a_DatabaseCreated_event_a_HoppedToDatabase_event_will_also_be_fired_so_both_messages_should_be_displayed()
+    public function if_hopper_fires_a_DatabaseCreated_event_a_HoppedToDatabase_event_will_also_be_fired_so_all_messages_should_be_displayed()
     {
         Hop::swap(new FiresDatabaseCreatedAndHoppedToDatabaseEvents);
 
         $this->artisan('hop test')
             ->expectsOutput('Hopped to test')
-            ->expectsOutput('test was created');
+            ->expectsOutput('test was created')
+            ->expectsConfirmation('Do you want to run the post-creation steps for test?');
     }
 }
 

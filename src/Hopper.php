@@ -2,6 +2,7 @@
 
 namespace Nedwors\Hopper;
 
+use Illuminate\Support\Facades\Artisan;
 use Nedwors\Hopper\Contracts\Engine;
 
 class Hopper
@@ -26,6 +27,14 @@ class Hopper
     public function delete(string $database)
     {
         $this->engine->delete($database);
+    }
+
+    public function handlePostCreation()
+    {
+        collect(config('hopper.post-creation-steps'))
+            ->map(fn($step) => value($step))
+            ->filter()
+            ->each(fn($command) => Artisan::call($command));
     }
 
     public function boot()
