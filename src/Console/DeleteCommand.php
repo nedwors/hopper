@@ -31,15 +31,15 @@ class DeleteCommand extends Command
         });
 
         Event::listen(DatabaseNotDeleted::class, function ($event) {
-            $this->info("<fg=yellow>$event->name</> {$this->notDeletedMessage($event->reason)}");
+            $this->info("<fg=yellow>$event->name</> {$this->notDeletedMessage($event->reason)}, so it was not deleted");
         });
     }
 
     protected function notDeletedMessage($reason)
     {
         return [
-            DatabaseNotDeleted::DOES_NOT_EXIST => 'does not exist, so it was not deleted',
-            DatabaseNotDeleted::DEFAULT => 'is the default database, so it was not deleted',
+            DatabaseNotDeleted::DOES_NOT_EXIST => 'does not exist',
+            DatabaseNotDeleted::DEFAULT => 'is the default database',
         ][$reason];
     }
 }

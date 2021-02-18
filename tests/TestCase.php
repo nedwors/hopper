@@ -8,11 +8,6 @@ use Orchestra\Testbench;
 
 abstract class TestCase extends Testbench\TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
-
     protected function getEnvironmentSetUp($app)
     {
         $app->config->set('database.default', 'sqlite');
