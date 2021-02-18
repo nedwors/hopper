@@ -73,7 +73,7 @@ class HopCommandTest extends TestCase
 
         $this->artisan('hop test')
             ->expectsOutput('test was created')
-            ->expectsConfirmation('Do you want to run the post-creation steps for test?');
+            ->expectsConfirmation('Do you want to run the post-creation steps for <fg=yellow>test</>?');
     }
 
     /** @test */
@@ -84,7 +84,7 @@ class HopCommandTest extends TestCase
         $this->artisan('hop test')
             ->expectsOutput('Hopped to test')
             ->expectsOutput('test was created')
-            ->expectsConfirmation('Do you want to run the post-creation steps for test?');
+            ->expectsConfirmation('Do you want to run the post-creation steps for <fg=yellow>test</>?');
     }
 }
 
