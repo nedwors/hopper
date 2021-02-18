@@ -14,9 +14,8 @@ class DeleteTest extends TestCase
         $this->mock(Engine::class)
             ->shouldReceive('delete')
             ->once()
-            ->withArgs(['hello-world'])
-            ->andReturn($deleted = rand(1,2) == 1);
+            ->withArgs(['hello-world']);
 
-        expect(Hop::delete('hello-world'))->toEqual($deleted);
+        Hop::delete('hello-world');
     }
 }

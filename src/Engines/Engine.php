@@ -2,17 +2,23 @@
 
 namespace Nedwors\Hopper\Engines;
 
-use Illuminate\Support\Facades\Config;
-use Nedwors\Hopper\Contracts;
-use Nedwors\Hopper\Contracts\Connection;
-use Nedwors\Hopper\Contracts\Filer;
 use Nedwors\Hopper\Database;
+use Nedwors\Hopper\Contracts;
 use Nedwors\Hopper\Facades\Git;
+use Nedwors\Hopper\Contracts\Filer;
+use Illuminate\Support\Facades\Config;
+use Nedwors\Hopper\Contracts\Connection;
+use Nedwors\Hopper\Events\DatabaseCreated;
+use Nedwors\Hopper\Events\DatabaseDeleted;
+use Nedwors\Hopper\Events\HoppedToDefault;
+use Nedwors\Hopper\Events\HoppedToDatabase;
+use Nedwors\Hopper\Events\DatabaseNotDeleted;
 
 class Engine implements Contracts\Engine
 {
     protected Connection $connection;
     protected Filer $filer;
+    protected $defaultDatabase = null;
 
     public function __construct(Connection $connection, Filer $filer)
     {
@@ -25,22 +31,32 @@ class Engine implements Contracts\Engine
         $database = $this->resolveDatabaseName($database);
 
         $this->isDefault($database)
-            ? $this->useDefault()
+            ? $this->useDefault($database)
             : $this->useNonDefault($database);
     }
 
-    protected function useDefault()
+    protected function useDefault($database)
     {
         $this->filer->flushCurrentHop();
+        HoppedToDefault::dispatch($this->defaultDatabase ?? $database);
     }
 
     protected function useNonDefault(string $database)
     {
-        if (!$this->exists($database)) {
-            $this->connection->create($database);
-        }
+        $this->createIfNeeded($database);
 
         $this->filer->setCurrentHop($database);
+        HoppedToDatabase::dispatch($database);
+    }
+
+    protected function createIfNeeded($database)
+    {
+        if ($this->exists($database)) {
+            return;
+        }
+
+        $this->connection->create($database);
+        DatabaseCreated::dispatch($database);
     }
 
     public function exists(string $database): bool
@@ -48,19 +64,22 @@ class Engine implements Contracts\Engine
         return $this->connection->exists($database);
     }
 
-    public function delete(string $database): bool
+    public function delete(string $database)
     {
         $database = $this->resolveDatabaseName($database);
 
         if ($this->isDefault($database)) {
-            return false;
+            DatabaseNotDeleted::dispatch($database, DatabaseNotDeleted::DEFAULT);
+            return;
         }
 
         if (!$this->exists($database)) {
-            return false;
+            DatabaseNotDeleted::dispatch($database, DatabaseNotDeleted::DOES_NOT_EXIST);
+            return;
         }
 
-        return $this->connection->delete($database);
+        $this->connection->delete($database);
+        DatabaseDeleted::dispatch($database);
     }
 
     protected function resolveDatabaseName(string $database)
@@ -98,6 +117,8 @@ class Engine implements Contracts\Engine
         if (!$database = $this->current()) {
             return;
         }
+
+        $this->defaultDatabase = $this->defaultDatabase();
 
         Config::set(
             "database.connections.{$database->connection}.database",

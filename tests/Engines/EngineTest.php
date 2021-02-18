@@ -2,10 +2,16 @@
 namespace Nedwors\Hopper\Tests\Engines;
 
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Event;
 use Nedwors\Hopper\Contracts\Connection;
 use Nedwors\Hopper\Contracts\Filer;
 use Nedwors\Hopper\Database;
 use Nedwors\Hopper\Engines\Engine;
+use Nedwors\Hopper\Events\DatabaseCreated;
+use Nedwors\Hopper\Events\DatabaseDeleted;
+use Nedwors\Hopper\Events\DatabaseNotDeleted;
+use Nedwors\Hopper\Events\HoppedToDatabase;
+use Nedwors\Hopper\Events\HoppedToDefault;
 use Nedwors\Hopper\Tests\TestCase;
 
 class EngineTest extends TestCase
@@ -15,6 +21,7 @@ class EngineTest extends TestCase
         parent::setUp();
 
         $this->mock(Filer::class)->shouldReceive('setCurrentHop');
+        Event::fake();
     }
 
     /**
@@ -112,6 +119,35 @@ class EngineTest extends TestCase
      * @dataProvider databaseConnectionDataProvider
      * @test
      * */
+    public function when_a_hop_is_filed_a_HoppedDatabase_event_is_fired($connection, $name, $database, $default)
+    {
+        $database = is_callable($database) ? $database() : $database;
+
+        Event::assertNotDispatched(HoppedToDatabase::class);
+
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldReceive('exists')
+            ->andReturn(true);
+
+        $this->mock(Filer::class)
+            ->shouldReceive('setCurrentHop')
+            ->once()
+            ->withArgs([$name]);
+
+        app(Engine::class)->use($name);
+
+        Event::assertDispatched(HoppedToDatabase::class, function ($event) use ($name) {
+            $this->assertEquals($name, $event->name);
+            return true;
+        });
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
     public function calling_use_with_the_configured_default_database_name_will_not_create_a_database_and_will_flush_the_currentHop($connection, $name, $database, $default)
     {
         Config::set("database.connections.$connection.database", $default);
@@ -147,6 +183,78 @@ class EngineTest extends TestCase
             ->once();
 
         app(Engine::class)->use('staging');
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function when_the_current_hop_is_flushed_a_HoppedToDefault_event_is_fired($connection, $name, $database, $default)
+    {
+        Config::set("database.connections.$connection.database", $default);
+
+        Event::assertNotDispatched(HoppedToDefault::class);
+
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldNotReceive('create');
+
+        $this->mock(Filer::class)
+            ->shouldReceive('flushCurrentHop')
+            ->once();
+
+        app(Engine::class)->use($default);
+
+        Event::assertDispatched(HoppedToDefault::class);
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function when_a_database_is_created_an_DatabaseCreated_event_is_fired($connection, $name, $database, $default)
+    {
+        $database = is_callable($database) ? $database() : $database;
+        Config::set("database.connections.$connection.database", $default);
+
+        Event::assertNotDispatched(DatabaseCreated::class);
+
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldReceive('exists')
+            ->andReturn(false)
+            ->shouldReceive('create')
+            ->once()
+            ->withArgs([$name]);
+
+        app(Engine::class)->use($name);
+
+        Event::assertDispatched(DatabaseCreated::class, fn($event) => $event->name == $name);
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function when_a_database_is_not_created_an_DatabaseCreated_event_is_not_fired($connection, $name, $database, $default)
+    {
+        $database = is_callable($database) ? $database() : $database;
+        Config::set("database.connections.$connection.database", $default);
+
+        Event::assertNotDispatched(DatabaseCreated::class);
+
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldReceive('exists')
+            ->andReturn(true)
+            ->shouldNotReceive('create');
+
+        app(Engine::class)->use($name);
+
+        Event::assertNotDispatched(DatabaseCreated::class);
     }
 
     /**
@@ -211,26 +319,6 @@ class EngineTest extends TestCase
      * @dataProvider databaseConnectionDataProvider
      * @test
      * */
-    public function delete_will_return_the_connections_deletion_boolean($connection, $name, $database, $default)
-    {
-        $this->mock(Connection::class)
-            ->shouldReceive('name')
-            ->andReturn($connection)
-            ->shouldReceive('exists')
-            ->once()
-            ->withArgs([$name])
-            ->andReturn(true)
-            ->shouldReceive('delete')
-            ->withArgs([$name])
-            ->andReturn($deleted = rand(1,2) == 1);
-
-        expect(app(Engine::class)->delete('foobar'))->toEqual($deleted);
-    }
-
-    /**
-     * @dataProvider databaseConnectionDataProvider
-     * @test
-     * */
     public function if_the_database_given_is_the_default_database_the_connection_is_not_asked_to_delete_it($connection, $name, $database, $default)
     {
         Config::set("database.connections.$connection.database", $default);
@@ -258,6 +346,100 @@ class EngineTest extends TestCase
             ->shouldNotReceive('delete');
 
         app(Engine::class)->delete('staging');
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function a_DatabaseDeleted_event_is_dispatched_when_a_database_is_deleted($connection, $name)
+    {
+        Event::assertNotDispatched(DatabaseDeleted::class);
+
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldReceive('exists')
+            ->withArgs([$name])
+            ->andReturn(true)
+            ->shouldReceive('delete')
+            ->once()
+            ->withArgs([$name])
+            ->andReturn(true);
+
+        app(Engine::class)->delete($name);
+
+        Event::assertDispatched(DatabaseDeleted::class, fn($event) => $event->name == $name);
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function a_DatabaseDeleted_event_is_not_dispatched_when_a_database_is_not_deleted($connection, $name)
+    {
+        Event::assertNotDispatched(DatabaseDeleted::class);
+
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldReceive('exists')
+            ->withArgs([$name])
+            ->andReturn(false)
+            ->shouldNotReceive('delete');
+
+        app(Engine::class)->delete($name);
+
+        Event::assertNotDispatched(DatabaseDeleted::class);
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function a_DatabaseNotDeleted_event_is_dispatched_when_a_database_is_not_deleted_if_the_database_doesnt_exist($connection, $name)
+    {
+        Event::assertNotDispatched(DatabaseNotDeleted::class);
+
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldReceive('exists')
+            ->withArgs([$name])
+            ->andReturn(false)
+            ->shouldNotReceive('delete');
+
+        app(Engine::class)->delete($name);
+
+        Event::assertDispatched(DatabaseNotDeleted::class, function ($event) use ($name) {
+            $this->assertEquals($name, $event->name);
+            $this->assertEquals(DatabaseNotDeleted::DOES_NOT_EXIST, $event->reason);
+            return true;
+        });
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function a_DatabaseNotDeleted_event_is_dispatched_when_a_database_is_not_deleted_if_the_database_is_the_default_database($connection, $name, $database, $default)
+    {
+        Event::assertNotDispatched(DatabaseNotDeleted::class);
+
+        Config::set("database.connections.$connection.database", $default);
+
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldNotReceive('delete');
+
+        app(Engine::class)->delete($default);
+
+        Event::assertDispatched(DatabaseNotDeleted::class, function ($event) use ($default) {
+            $this->assertEquals($default, $event->name);
+            $this->assertEquals(DatabaseNotDeleted::DEFAULT, $event->reason);
+            return true;
+        });
     }
 
     /**
