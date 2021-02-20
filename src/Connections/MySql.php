@@ -34,9 +34,7 @@ class MySql implements Connection
 
     public function database(string $name): string
     {
-        $name = str_replace('-', '_', $name);
-
-        return "{$this->prefix}$name";
+        return $this->prefix . str_replace('-', '_', $name);
     }
 
     public function name(): string
