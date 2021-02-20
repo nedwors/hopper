@@ -7,6 +7,7 @@ use Nedwors\Hopper\Contracts;
 use Nedwors\Hopper\Facades\Git;
 use Nedwors\Hopper\Contracts\Filer;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 use Nedwors\Hopper\Contracts\Connection;
 use Nedwors\Hopper\Events\DatabaseCreated;
 use Nedwors\Hopper\Events\DatabaseDeleted;
@@ -119,6 +120,8 @@ class Engine implements Contracts\Engine
         }
 
         $this->defaultDatabase = $this->defaultDatabase();
+
+        DB::purge();
 
         Config::set(
             "database.connections.{$database->connection}.database",

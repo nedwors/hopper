@@ -57,6 +57,7 @@ class HopCommand extends Command
                 return;
             }
 
+            Hop::boot();
             $this->info('Ok, running now...');
             Hop::handlePostCreation();
             $this->info('All post-creation steps run');
