@@ -28,6 +28,6 @@ class CurrentCommandTest extends TestCase
             ->andReturn(null);
 
         $this->artisan('hop:current')
-             ->expectsOutput('There is no current hopper db...');
+             ->expectsOutput('Currently using the default database');
     }
 }
