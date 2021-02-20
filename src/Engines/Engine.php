@@ -5,9 +5,9 @@ namespace Nedwors\Hopper\Engines;
 use Nedwors\Hopper\Database;
 use Nedwors\Hopper\Contracts;
 use Nedwors\Hopper\Facades\Git;
+use Illuminate\Support\Facades\DB;
 use Nedwors\Hopper\Contracts\Filer;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\DB;
 use Nedwors\Hopper\Contracts\Connection;
 use Nedwors\Hopper\Events\DatabaseCreated;
 use Nedwors\Hopper\Events\DatabaseDeleted;
@@ -25,6 +25,7 @@ class Engine implements Contracts\Engine
     {
         $this->connection = $connection;
         $this->filer = $filer;
+        $this->defaultDatabase = config("database.connections.{$this->connection->name()}.database");
     }
 
     public function use(string $database)
@@ -85,7 +86,7 @@ class Engine implements Contracts\Engine
 
     protected function resolveDatabaseName(string $database)
     {
-        return $database === Git::default() ? $this->defaultDatabase() : $database;
+        return $database === Git::default() ? $this->defaultDatabase : $database;
     }
 
     public function current(): ?Database
@@ -103,12 +104,7 @@ class Engine implements Contracts\Engine
 
     protected function isDefault(string $name)
     {
-        return $name === $this->defaultDatabase();
-    }
-
-    protected function defaultDatabase()
-    {
-        return config("database.connections.{$this->connection->name()}.database");
+        return $name === $this->defaultDatabase;
     }
 
     public function boot()
@@ -118,8 +114,6 @@ class Engine implements Contracts\Engine
         if (!$database = $this->current()) {
             return;
         }
-
-        $this->defaultDatabase = $this->defaultDatabase();
 
         DB::purge();
 

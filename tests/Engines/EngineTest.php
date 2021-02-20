@@ -478,6 +478,8 @@ class EngineTest extends TestCase
     public function current_returns_null_if_the_filer_returns_null($connection, $name, $database, $default)
     {
         $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($name)
             ->shouldNotReceive('database');
 
         $this->mock(Filer::class)
