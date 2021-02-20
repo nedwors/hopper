@@ -2,8 +2,9 @@
 
 namespace Nedwors\Hopper;
 
-use Illuminate\Support\Facades\Artisan;
+use Nedwors\Hopper\Facades\Git;
 use Nedwors\Hopper\Contracts\Engine;
+use Illuminate\Support\Facades\Artisan;
 
 class Hopper
 {
@@ -28,6 +29,7 @@ class Hopper
     public function delete(string $database)
     {
         $this->engine->delete($database);
+        $this->to(Git::default());
     }
 
     public function handlePostCreation()
