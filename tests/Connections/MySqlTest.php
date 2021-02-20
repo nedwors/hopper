@@ -9,6 +9,13 @@ use Nedwors\Hopper\Tests\TestCase;
 
 class MySqlTest extends TestCase
 {
+    protected function getEnvironmentSetUp($app)
+    {
+        parent::getEnvironmentSetUp($app);
+
+        $app->config->set('database.default', 'mysql');
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -22,7 +29,11 @@ class MySqlTest extends TestCase
         DB::partialMock()
             ->shouldReceive('statement')
             ->once()
-            ->withArgs(['CREATE DATABASE IF NOT EXISTS hopper_hopper_test']);
+            ->withArgs(function ($statement, $parameter) {
+                expect($statement)->toEqual("CREATE DATABASE IF NOT EXISTS ?");
+                expect($parameter)->toEqual(['hopper_hopper_test']);
+                return true;
+            });
 
         app(MySql::class)->create('hopper_test');
     }
@@ -33,7 +44,11 @@ class MySqlTest extends TestCase
         DB::partialMock()
             ->shouldReceive('statement')
             ->once()
-            ->withArgs(['CREATE DATABASE IF NOT EXISTS hopper_test_database_with_underscores']);
+            ->withArgs(function ($statement, $parameter) {
+                expect($statement)->toEqual("CREATE DATABASE IF NOT EXISTS ?");
+                expect($parameter)->toEqual(['hopper_test_database_with_underscores']);
+                return true;
+            });
 
         app(MySql::class)->create('test-database_with-underscores');
     }
@@ -44,7 +59,11 @@ class MySqlTest extends TestCase
         DB::partialMock()
             ->shouldReceive('statement')
             ->once()
-            ->withArgs(['DROP DATABASE IF EXISTS hopper_hopper_test']);
+            ->withArgs(function ($statement, $parameter) {
+                expect($statement)->toEqual("DROP DATABASE IF EXISTS ?");
+                expect($parameter)->toEqual(['hopper_hopper_test']);
+                return true;
+            });
 
         app(MySql::class)->delete('hopper_test');
     }
@@ -55,7 +74,11 @@ class MySqlTest extends TestCase
         DB::partialMock()
             ->shouldReceive('statement')
             ->once()
-            ->withArgs(['DROP DATABASE IF EXISTS hopper_test_database_with_underscores']);
+            ->withArgs(function ($statement, $parameter) {
+                expect($statement)->toEqual("DROP DATABASE IF EXISTS ?");
+                expect($parameter)->toEqual(['hopper_test_database_with_underscores']);
+                return true;
+            });
 
         app(MySql::class)->delete('test-database_with-underscores');
     }
@@ -66,7 +89,11 @@ class MySqlTest extends TestCase
         DB::partialMock()
             ->shouldReceive('select')
             ->once()
-            ->withArgs(["SHOW DATABASES LIKE 'hopper_hopper_test'"])
+            ->withArgs(function ($statement, $parameter) {
+                expect($statement)->toEqual("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?");
+                expect($parameter)->toEqual(['hopper_hopper_test']);
+                return true;
+            })
             ->andReturn([]);
 
         app(MySql::class)->exists('hopper_test');
@@ -78,7 +105,11 @@ class MySqlTest extends TestCase
         DB::partialMock()
             ->shouldReceive('select')
             ->once()
-            ->withArgs(["SHOW DATABASES LIKE 'hopper_test_database_with_underscores'"])
+            ->withArgs(function ($statement, $parameter) {
+                expect($statement)->toEqual("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?");
+                expect($parameter)->toEqual(['hopper_test_database_with_underscores']);
+                return true;
+            })
             ->andReturn([]);
 
         app(MySql::class)->exists('test-database_with-underscores');
@@ -92,7 +123,11 @@ class MySqlTest extends TestCase
         DB::partialMock()
             ->shouldReceive('statement')
             ->once()
-            ->withArgs(['CREATE DATABASE IF NOT EXISTS this_is_a_test_hopper_test']);
+            ->withArgs(function ($statement, $parameter) {
+                expect($statement)->toEqual("CREATE DATABASE IF NOT EXISTS ?");
+                expect($parameter)->toEqual(['this_is_a_test_hopper_test']);
+                return true;
+            });
 
         app(MySql::class)->create('hopper_test');
     }
@@ -105,7 +140,11 @@ class MySqlTest extends TestCase
         DB::partialMock()
             ->shouldReceive('statement')
             ->once()
-            ->withArgs(['CREATE DATABASE IF NOT EXISTS hopper_hopper_test']);
+            ->withArgs(function ($statement, $parameter) {
+                expect($statement)->toEqual("CREATE DATABASE IF NOT EXISTS ?");
+                expect($parameter)->toEqual(['hopper_hopper_test']);
+                return true;
+            });
 
         app(MySql::class)->create('hopper_test');
     }
