@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Event;
 use Nedwors\Hopper\Events\DatabaseDeleted;
 use Nedwors\Hopper\Events\DatabaseNotDeleted;
+use Nedwors\Hopper\Events\HoppedToDefault;
 use Nedwors\Hopper\Facades\Hop;
 
 class DeleteCommand extends Command
@@ -32,6 +33,10 @@ class DeleteCommand extends Command
 
         Event::listen(DatabaseNotDeleted::class, function ($event) {
             $this->info("<fg=yellow>$event->name</> {$this->notDeletedMessage($event->reason)}, so it was not deleted");
+        });
+
+        Event::listen(HoppedToDefault::class, function ($event) {
+            $this->info("Hopped to default database: <fg=yellow>$event->name</>");
         });
     }
 

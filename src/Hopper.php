@@ -29,7 +29,6 @@ class Hopper
     public function delete(string $database)
     {
         $this->engine->delete($database);
-        $this->to(Git::default());
     }
 
     public function handlePostCreation()

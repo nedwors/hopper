@@ -82,6 +82,7 @@ class Engine implements Contracts\Engine
 
         $this->connection->delete($database);
         DatabaseDeleted::dispatch($database);
+        $this->use($this->defaultDatabase);
     }
 
     protected function swapForDefaultDatabaseIfDefaultGitBranch(string $database)

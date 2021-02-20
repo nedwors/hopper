@@ -20,7 +20,10 @@ class EngineTest extends TestCase
     {
         parent::setUp();
 
-        $this->mock(Filer::class)->shouldReceive('setCurrentHop');
+        $this->mock(Filer::class)
+            ->shouldReceive('setCurrentHop')
+            ->shouldReceive('flushCurrentHop');
+
         Event::fake();
     }
 
@@ -282,6 +285,31 @@ class EngineTest extends TestCase
      * */
     public function delete_will_ask_the_connection_to_delete_the_given_database_if_it_exists($connection, $name, $database, $default)
     {
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldReceive('exists')
+            ->once()
+            ->withArgs([$name])
+            ->andReturn(true)
+            ->shouldReceive('delete')
+            ->once()
+            ->withArgs([$name])
+            ->andReturn(true);
+
+        app(Engine::class)->delete($name);
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function delete_will_hop_to_the_default_database_post_delete($connection, $name, $database, $default)
+    {
+        $this->mock(Filer::class)
+            ->shouldReceive('flushCurrentHop')
+            ->once();
+
         $this->mock(Connection::class)
             ->shouldReceive('name')
             ->andReturn($connection)
