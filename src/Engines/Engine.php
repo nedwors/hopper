@@ -14,7 +14,6 @@ use Nedwors\Hopper\Events\DatabaseDeleted;
 use Nedwors\Hopper\Events\HoppedToDefault;
 use Nedwors\Hopper\Events\HoppedToDatabase;
 use Nedwors\Hopper\Events\DatabaseNotDeleted;
-use Nedwors\Hopper\Events\UnsupportedConnection;
 use Nedwors\Hopper\Exceptions\NoConnectionException;
 
 class Engine implements Contracts\Engine
