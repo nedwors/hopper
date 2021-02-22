@@ -264,25 +264,6 @@ class EngineTest extends TestCase
      * @dataProvider databaseConnectionDataProvider
      * @test
      * */
-    public function exists_returns_the_connections_exists_method_return_value($connection, $name, $database, $default)
-    {
-        Config::set("database.connections.$connection.database", $default);
-
-        $this->mock(Connection::class)
-            ->shouldReceive('name')
-            ->andReturn($connection)
-            ->shouldReceive('exists')
-            ->once()
-            ->withArgs([$name])
-            ->andReturn($exists = rand(1,2) == 1);
-
-        expect(app(Engine::class)->exists($name))->toEqual($exists);
-    }
-
-    /**
-     * @dataProvider databaseConnectionDataProvider
-     * @test
-     * */
     public function delete_will_ask_the_connection_to_delete_the_given_database_if_it_exists($connection, $name, $database, $default)
     {
         $this->mock(Connection::class)

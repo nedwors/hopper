@@ -61,7 +61,7 @@ class Engine implements Contracts\Engine
         DatabaseCreated::dispatch($database);
     }
 
-    public function exists(string $database): bool
+    protected function exists(string $database)
     {
         return $this->connection->exists($database);
     }
