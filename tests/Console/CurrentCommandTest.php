@@ -4,6 +4,7 @@ namespace Nedwors\Hopper\Tests\Console;
 
 use Nedwors\Hopper\Contracts\Filer;
 use Nedwors\Hopper\Database;
+use Nedwors\Hopper\Exceptions\NoConnectionException;
 use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Tests\TestCase;
 
@@ -29,5 +30,22 @@ class CurrentCommandTest extends TestCase
 
         $this->artisan('hop:current')
              ->expectsOutput('Currently using the default database');
+    }
+
+    /** @test */
+    public function if_a_NoConnectionException_is_thrown_a_safe_message_is_displayed()
+    {
+        Hop::swap(new ThrowsCurrentNoConnectionException);
+
+        $this->artisan('hop:current')
+            ->expectsOutput('Sorry, your database connection is not currently supported by Hopper');
+    }
+}
+
+class ThrowsCurrentNoConnectionException
+{
+    public function current()
+    {
+        throw new NoConnectionException;
     }
 }

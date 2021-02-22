@@ -4,6 +4,7 @@ namespace Nedwors\Hopper\Tests\Console;
 
 use Nedwors\Hopper\Events\DatabaseDeleted;
 use Nedwors\Hopper\Events\DatabaseNotDeleted;
+use Nedwors\Hopper\Exceptions\NoConnectionException;
 use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Tests\TestCase;
 
@@ -46,6 +47,15 @@ class DeleteCommandTest extends TestCase
         $this->artisan('hop:delete hello-world')
             ->expectsOutput('hello-world is the default database, so it was not deleted');
     }
+
+    /** @test */
+    public function if_a_NoConnectionException_is_thrown_a_safe_message_is_displayed()
+    {
+        Hop::swap(new ThrowsDeleteNoConnectionException);
+
+        $this->artisan('hop:delete hello-world')
+            ->expectsOutput('Sorry, your database connection is not currently supported by Hopper');
+    }
 }
 
 class FiresDatabaseDeletedEvent
@@ -67,5 +77,13 @@ class FiresDatabaseNotDeletedEvent
     public function delete($database)
     {
         DatabaseNotDeleted::dispatch($database, $this->reason);
+    }
+}
+
+class ThrowsDeleteNoConnectionException
+{
+    public function delete($database)
+    {
+        throw new NoConnectionException;
     }
 }

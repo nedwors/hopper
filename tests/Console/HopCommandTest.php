@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Config;
 use Nedwors\Hopper\Events\DatabaseCreated;
 use Nedwors\Hopper\Events\HoppedToDatabase;
 use Nedwors\Hopper\Events\HoppedToDefault;
+use Nedwors\Hopper\Exceptions\NoConnectionException;
 use Nedwors\Hopper\Facades\Git;
 use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Tests\TestCase;
@@ -86,6 +87,15 @@ class HopCommandTest extends TestCase
             ->expectsOutput('test was created')
             ->expectsConfirmation('Do you want to run the post-creation steps for <fg=yellow>test</>?');
     }
+
+    /** @test */
+    public function if_a_NoConnectionException_is_thrown_a_safe_message_is_displayed()
+    {
+        Hop::swap(new ThrowsHopNoConnectionException);
+
+        $this->artisan('hop hello-world')
+            ->expectsOutput('Sorry, your database connection is not currently supported by Hopper');
+    }
 }
 
 class FiresHoppedToDatabaseEvent
@@ -118,5 +128,13 @@ class FiresDatabaseCreatedAndHoppedToDatabaseEvents
     {
         HoppedToDatabase::dispatch($database);
         DatabaseCreated::dispatch($database);
+    }
+}
+
+class ThrowsHopNoConnectionException
+{
+    public function to($database)
+    {
+        throw new NoConnectionException;
     }
 }
