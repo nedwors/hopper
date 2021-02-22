@@ -6,11 +6,13 @@ use Illuminate\Console\Command;
 use Nedwors\Hopper\Facades\Git;
 use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Events\DatabaseCreated;
-use Nedwors\Hopper\Traits\ListensForEvents;
+use Nedwors\Hopper\Traits\Console\CatchesExceptions;
+use Nedwors\Hopper\Traits\Console\ListensForEvents;
 
 class HopCommand extends Command
 {
     use ListensForEvents;
+    use CatchesExceptions;
 
     protected $signature = 'hop {database?}';
 
@@ -25,7 +27,7 @@ class HopCommand extends Command
         }
 
         $this->listen();
-        Hop::to($database);
+        $this->tryTo(fn() => Hop::to($database));
 
         if (!$this->postCreationCallback) {
             return;

@@ -46,16 +46,6 @@ class DeleteCommandTest extends TestCase
         $this->artisan('hop:delete hello-world')
             ->expectsOutput('hello-world is the default database, so it was not deleted');
     }
-
-    /** @test */
-    public function if_no_database_name_is_given_a_warning_is_displayed_and_hopper_is_not_accessed()
-    {
-        Hop::partialMock()
-            ->shouldNotReceive('delete');
-
-        $this->artisan('hop:delete')
-            ->expectsOutput('Please provide a database to be deleted');
-    }
 }
 
 class FiresDatabaseDeletedEvent

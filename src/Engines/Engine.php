@@ -14,6 +14,8 @@ use Nedwors\Hopper\Events\DatabaseDeleted;
 use Nedwors\Hopper\Events\HoppedToDefault;
 use Nedwors\Hopper\Events\HoppedToDatabase;
 use Nedwors\Hopper\Events\DatabaseNotDeleted;
+use Nedwors\Hopper\Events\UnsupportedConnection;
+use Nedwors\Hopper\Exceptions\NoConnectionException;
 
 class Engine implements Contracts\Engine
 {
@@ -21,11 +23,19 @@ class Engine implements Contracts\Engine
     protected Filer $filer;
     protected $defaultDatabase = null;
 
-    public function __construct(Connection $connection, Filer $filer)
+    public function __construct(Filer $filer)
     {
-        $this->connection = $connection;
+        $this->connection = $this->resolveConnection();
         $this->filer = $filer;
         $this->defaultDatabase = config("database.connections.{$this->connection->name()}.database");
+    }
+
+    protected function resolveConnection()
+    {
+        return throw_unless(
+            rescue(fn() => app(Connection::class), null, false),
+            NoConnectionException::class
+        );
     }
 
     public function use(string $database)

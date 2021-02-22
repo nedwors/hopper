@@ -4,23 +4,21 @@ namespace Nedwors\Hopper\Console;
 
 use Illuminate\Console\Command;
 use Nedwors\Hopper\Facades\Hop;
-use Nedwors\Hopper\Traits\ListensForEvents;
+use Nedwors\Hopper\Traits\Console\ListensForEvents;
+use Nedwors\Hopper\Traits\Console\CatchesExceptions;
 
 class DeleteCommand extends Command
 {
     use ListensForEvents;
+    use CatchesExceptions;
 
-    protected $signature = 'hop:delete {database?}';
+    protected $signature = 'hop:delete {database}';
 
     protected $description = 'Delete the given hopper database';
 
     public function handle()
     {
-        if (!$database = $this->argument('database')) {
-            return $this->warn('Please provide a database to be deleted');
-        }
-
         $this->listen();
-        Hop::delete($database);
+        $this->tryTo(fn() => Hop::delete($this->argument('database')));
     }
 }

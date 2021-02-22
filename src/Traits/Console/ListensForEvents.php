@@ -1,6 +1,6 @@
 <?php
 
-namespace Nedwors\Hopper\Traits;
+namespace Nedwors\Hopper\Traits\Console;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Event;
@@ -88,6 +88,6 @@ trait ListensForEvents
         return [
             DatabaseNotDeleted::DOES_NOT_EXIST => 'does not exist',
             DatabaseNotDeleted::DEFAULT => 'is the default database',
-        ][$reason];
+            ][$reason];
     }
 }
