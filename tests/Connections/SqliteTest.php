@@ -11,6 +11,13 @@ class SqliteTest extends TestCase
 {
     protected $databasePath = 'hopper';
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Config::set('hopper.connections.sqlite.database-path', 'hopper/');
+    }
+
     /** @test */
     public function create_will_create_a_new_sqlite_database_at_the_database_path_in_the_configured_hopper_directory()
     {
@@ -82,7 +89,7 @@ class SqliteTest extends TestCase
     /** @test */
     public function when_it_boots_the_configured_hopper_directory_is_created_if_it_doesnt_exist()
     {
-        Config::set('hopper.connections.sqlite.datbase-path', 'hopper/');
+        Config::set('hopper.connections.sqlite.database-path', 'hopper/');
 
         File::partialMock()
             ->shouldReceive('exists')

@@ -11,10 +11,12 @@ return [
 
         'sqlite' => [
             'driver' => Sqlite::class,
+            'database-path' => 'hopper/'
         ],
 
         'mysql' => [
             'driver' => MySql::class,
+            'database-prefix' => 'hopper_'
         ],
 
     ],
