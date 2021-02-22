@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Artisan;
 
 class Hopper
 {
+    const DEFAULT = 'hopper-default-database';
+
     protected Engine $engine;
 
     public function __construct(Engine $engine)
@@ -16,7 +18,7 @@ class Hopper
 
     public function to(string $database)
     {
-        $this->engine->use($database);
+        $this->engine->use($database == self::DEFAULT ? Engine::DEFAULT : $database);
         $this->boot();
     }
 

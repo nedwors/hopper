@@ -96,6 +96,17 @@ class HopCommandTest extends TestCase
         $this->artisan('hop hello-world')
             ->expectsOutput('Sorry, your database connection is not currently supported by Hopper');
     }
+
+    /** @test */
+    public function calling_hop_with_the_default_option_will_call_Hop_with_HopDefault()
+    {
+        Hop::partialMock()
+            ->shouldReceive('to')
+            ->once()
+            ->withArgs([Hop::getFacadeRoot()::DEFAULT]);
+
+        $this->artisan('hop --d');
+    }
 }
 
 class FiresHoppedToDatabaseEvent
