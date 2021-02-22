@@ -4,6 +4,7 @@ namespace Nedwors\Hopper\Tests\Console;
 
 use Nedwors\Hopper\Events\DatabaseDeleted;
 use Nedwors\Hopper\Events\DatabaseNotDeleted;
+use Nedwors\Hopper\Exceptions\NoConnectionException;
 use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Tests\TestCase;
 
@@ -48,13 +49,12 @@ class DeleteCommandTest extends TestCase
     }
 
     /** @test */
-    public function if_no_database_name_is_given_a_warning_is_displayed_and_hopper_is_not_accessed()
+    public function if_a_NoConnectionException_is_thrown_a_safe_message_is_displayed()
     {
-        Hop::partialMock()
-            ->shouldNotReceive('delete');
+        Hop::swap(new ThrowsDeleteNoConnectionException);
 
-        $this->artisan('hop:delete')
-            ->expectsOutput('Please provide a database to be deleted');
+        $this->artisan('hop:delete hello-world')
+            ->expectsOutput('Sorry, your database connection is not currently supported by Hopper');
     }
 }
 
@@ -77,5 +77,13 @@ class FiresDatabaseNotDeletedEvent
     public function delete($database)
     {
         DatabaseNotDeleted::dispatch($database, $this->reason);
+    }
+}
+
+class ThrowsDeleteNoConnectionException
+{
+    public function delete($database)
+    {
+        throw new NoConnectionException;
     }
 }

@@ -3,6 +3,7 @@
 namespace Nedwors\Hopper;
 
 use Nedwors\Hopper\Contracts\Engine;
+use Illuminate\Support\Facades\Artisan;
 
 class Hopper
 {
@@ -16,6 +17,7 @@ class Hopper
     public function to(string $database)
     {
         $this->engine->use($database);
+        $this->boot();
     }
 
     public function current(): ?Database
@@ -26,6 +28,22 @@ class Hopper
     public function delete(string $database)
     {
         $this->engine->delete($database);
+    }
+
+    public function handlePostCreation()
+    {
+        collect(config('hopper.post-creation-steps'))->each(fn($step) => $this->runStep($step));
+    }
+
+    protected function runStep($step)
+    {
+        if (is_callable($step)) {
+            return $step();
+        }
+
+        if (is_string($step)) {
+            return Artisan::call($step);
+        }
     }
 
     public function boot()

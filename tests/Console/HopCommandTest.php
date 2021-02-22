@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Config;
 use Nedwors\Hopper\Events\DatabaseCreated;
 use Nedwors\Hopper\Events\HoppedToDatabase;
 use Nedwors\Hopper\Events\HoppedToDefault;
+use Nedwors\Hopper\Exceptions\NoConnectionException;
 use Nedwors\Hopper\Facades\Git;
 use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Tests\TestCase;
@@ -67,21 +68,33 @@ class HopCommandTest extends TestCase
     }
 
     /** @test */
-    public function if_hopper_fires_a_DatabaseCreated_event_a_message_is_displayed()
+    public function if_hopper_fires_a_DatabaseCreated_event_a_message_is_displayed_and_a_confirmation_is_shown()
     {
         Hop::swap(new FiresDatabaseCreatedEvent);
 
-        $this->artisan('hop test')->expectsOutput('test was created');
+        $this->artisan('hop test')
+            ->expectsOutput('test was created')
+            ->expectsConfirmation('Do you want to run the post-creation steps for <fg=yellow>test</>?');
     }
 
     /** @test */
-    public function if_hopper_fires_a_DatabaseCreated_event_a_HoppedToDatabase_event_will_also_be_fired_so_both_messages_should_be_displayed()
+    public function if_hopper_fires_a_DatabaseCreated_event_a_HoppedToDatabase_event_will_also_be_fired_so_all_messages_should_be_displayed()
     {
         Hop::swap(new FiresDatabaseCreatedAndHoppedToDatabaseEvents);
 
         $this->artisan('hop test')
             ->expectsOutput('Hopped to test')
-            ->expectsOutput('test was created');
+            ->expectsOutput('test was created')
+            ->expectsConfirmation('Do you want to run the post-creation steps for <fg=yellow>test</>?');
+    }
+
+    /** @test */
+    public function if_a_NoConnectionException_is_thrown_a_safe_message_is_displayed()
+    {
+        Hop::swap(new ThrowsHopNoConnectionException);
+
+        $this->artisan('hop hello-world')
+            ->expectsOutput('Sorry, your database connection is not currently supported by Hopper');
     }
 }
 
@@ -115,5 +128,13 @@ class FiresDatabaseCreatedAndHoppedToDatabaseEvents
     {
         HoppedToDatabase::dispatch($database);
         DatabaseCreated::dispatch($database);
+    }
+}
+
+class ThrowsHopNoConnectionException
+{
+    public function to($database)
+    {
+        throw new NoConnectionException;
     }
 }

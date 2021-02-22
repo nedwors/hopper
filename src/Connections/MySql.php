@@ -17,32 +17,24 @@ class MySql implements Connection
 
     public function create(string $name)
     {
-        $name = $this->database($name);
-
-        DB::statement("CREATE DATABASE IF NOT EXISTS $name");
+        DB::statement("CREATE DATABASE IF NOT EXISTS ?", [$this->database($name)]);
     }
 
     public function exists(string $name): bool
     {
-        $name = $this->database($name);
-
-        return count(DB::select("SHOW DATABASES LIKE '$name'")) > 0;
+        return ! empty(DB::select("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?", [$this->database($name)]));
     }
 
     public function delete(string $name): bool
     {
-        $name = $this->database($name);
-
-        DB::statement("DROP DATABASE IF EXISTS $name");
+        DB::statement("DROP DATABASE IF EXISTS ?", [$this->database($name)]);
 
         return true;
     }
 
     public function database(string $name): string
     {
-        $name = str_replace('-', '_', $name);
-
-        return "{$this->prefix}$name";
+        return $this->prefix . str_replace('-', '_', $name);
     }
 
     public function name(): string

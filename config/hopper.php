@@ -1,5 +1,7 @@
 <?php
 
+use Nedwors\Hopper\Connections\MySql;
+use Nedwors\Hopper\Connections\Sqlite;
 use Nedwors\Hopper\BootChecks\Environment;
 
 return [
@@ -8,16 +10,20 @@ return [
     'connections' => [
 
         'sqlite' => [
-            'driver' => Nedwors\Hopper\Connections\Sqlite::class,
+            'driver' => Sqlite::class,
         ],
 
         'mysql' => [
-            'driver' => Nedwors\Hopper\Connections\MySql::class,
+            'driver' => MySql::class,
         ],
 
     ],
 
     'boot-checks' => [
         Environment::class
+    ],
+
+    'post-creation-steps' => [
+        'migrate:fresh'
     ]
 ];

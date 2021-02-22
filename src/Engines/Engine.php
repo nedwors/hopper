@@ -5,6 +5,7 @@ namespace Nedwors\Hopper\Engines;
 use Nedwors\Hopper\Database;
 use Nedwors\Hopper\Contracts;
 use Nedwors\Hopper\Facades\Git;
+use Illuminate\Support\Facades\DB;
 use Nedwors\Hopper\Contracts\Filer;
 use Illuminate\Support\Facades\Config;
 use Nedwors\Hopper\Contracts\Connection;
@@ -13,6 +14,7 @@ use Nedwors\Hopper\Events\DatabaseDeleted;
 use Nedwors\Hopper\Events\HoppedToDefault;
 use Nedwors\Hopper\Events\HoppedToDatabase;
 use Nedwors\Hopper\Events\DatabaseNotDeleted;
+use Nedwors\Hopper\Exceptions\NoConnectionException;
 
 class Engine implements Contracts\Engine
 {
@@ -20,25 +22,34 @@ class Engine implements Contracts\Engine
     protected Filer $filer;
     protected $defaultDatabase = null;
 
-    public function __construct(Connection $connection, Filer $filer)
+    public function __construct(Filer $filer)
     {
-        $this->connection = $connection;
+        $this->connection = $this->resolveConnection();
         $this->filer = $filer;
+        $this->defaultDatabase = config("database.connections.{$this->connection->name()}.database");
+    }
+
+    protected function resolveConnection()
+    {
+        return throw_unless(
+            rescue(fn() => app(Connection::class), null, false),
+            NoConnectionException::class
+        );
     }
 
     public function use(string $database)
     {
-        $database = $this->resolveDatabaseName($database);
+        $database = $this->swapForDefaultDatabaseIfDefaultGitBranch($database);
 
         $this->isDefault($database)
-            ? $this->useDefault($database)
+            ? $this->useDefault()
             : $this->useNonDefault($database);
     }
 
-    protected function useDefault($database)
+    protected function useDefault()
     {
         $this->filer->flushCurrentHop();
-        HoppedToDefault::dispatch($this->defaultDatabase ?? $database);
+        HoppedToDefault::dispatch($this->defaultDatabase);
     }
 
     protected function useNonDefault(string $database)
@@ -59,14 +70,14 @@ class Engine implements Contracts\Engine
         DatabaseCreated::dispatch($database);
     }
 
-    public function exists(string $database): bool
+    protected function exists(string $database)
     {
         return $this->connection->exists($database);
     }
 
     public function delete(string $database)
     {
-        $database = $this->resolveDatabaseName($database);
+        $database = $this->swapForDefaultDatabaseIfDefaultGitBranch($database);
 
         if ($this->isDefault($database)) {
             DatabaseNotDeleted::dispatch($database, DatabaseNotDeleted::DEFAULT);
@@ -80,11 +91,12 @@ class Engine implements Contracts\Engine
 
         $this->connection->delete($database);
         DatabaseDeleted::dispatch($database);
+        $this->use($this->defaultDatabase);
     }
 
-    protected function resolveDatabaseName(string $database)
+    protected function swapForDefaultDatabaseIfDefaultGitBranch(string $database)
     {
-        return $database === Git::default() ? $this->defaultDatabase() : $database;
+        return $database === Git::default() ? $this->defaultDatabase : $database;
     }
 
     public function current(): ?Database
@@ -102,12 +114,7 @@ class Engine implements Contracts\Engine
 
     protected function isDefault(string $name)
     {
-        return $name === $this->defaultDatabase();
-    }
-
-    protected function defaultDatabase()
-    {
-        return config("database.connections.{$this->connection->name()}.database");
+        return $name === $this->defaultDatabase;
     }
 
     public function boot()
@@ -118,7 +125,7 @@ class Engine implements Contracts\Engine
             return;
         }
 
-        $this->defaultDatabase = $this->defaultDatabase();
+        DB::purge();
 
         Config::set(
             "database.connections.{$database->connection}.database",

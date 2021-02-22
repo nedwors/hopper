@@ -10,6 +10,8 @@ abstract class TestCase extends Testbench\TestCase
 {
     protected function getEnvironmentSetUp($app)
     {
+        parent::getEnvironmentSetUp($app);
+
         $app->config->set('database.default', 'sqlite');
     }
 
