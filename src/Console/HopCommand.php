@@ -6,15 +6,15 @@ use Illuminate\Console\Command;
 use Nedwors\Hopper\Facades\Git;
 use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Events\DatabaseCreated;
-use Nedwors\Hopper\Traits\Console\CatchesExceptions;
 use Nedwors\Hopper\Traits\Console\ListensForEvents;
+use Nedwors\Hopper\Traits\Console\CatchesExceptions;
 
 class HopCommand extends Command
 {
     use ListensForEvents;
     use CatchesExceptions;
 
-    protected $signature = 'hop {database?}';
+    protected $signature = 'hop {database?} {--d}';
 
     protected $description = 'Hop to the given database';
 
@@ -22,7 +22,7 @@ class HopCommand extends Command
 
     public function handle()
     {
-        if (!$database = $this->argument('database') ?? Git::current()) {
+        if (!$database = $this->retrieveDatabaseInput()) {
             return $this->warn('Please hop on a git branch or provide a database name');
         }
 
@@ -34,6 +34,13 @@ class HopCommand extends Command
         }
 
         $this->postCreationCallback->__invoke();
+    }
+
+    protected function retrieveDatabaseInput()
+    {
+        return $this->option('d')
+            ? Hop::getFacadeRoot()::DEFAULT
+            : $this->argument('database') ?? Git::current();
     }
 
     protected function databaseCreated(DatabaseCreated $event, $message)

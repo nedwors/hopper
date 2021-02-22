@@ -8,6 +8,7 @@ use Nedwors\Hopper\Contracts\Filer;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Config;
 use Nedwors\Hopper\Contracts\Connection;
+use Nedwors\Hopper\Contracts;
 use Nedwors\Hopper\Events\DatabaseCreated;
 use Nedwors\Hopper\Events\DatabaseDeleted;
 use Nedwors\Hopper\Events\HoppedToDefault;
@@ -47,6 +48,26 @@ class EngineTest extends TestCase
             ->withArgs([$name]);
 
         app(Engine::class)->use($name);
+    }
+
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function calling_use_with_the_default_option_will_use_the_default_database($connection, $name, $database, $default)
+    {
+        Config::set("database.connections.$connection.database", $default);
+
+        $this->mock(Connection::class)
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldNotReceive('create');
+
+        $this->mock(Filer::class)
+            ->shouldReceive('flushCurrentHop')
+            ->once();
+
+        app(Engine::class)->use(Contracts\Engine::DEFAULT);
     }
 
     /**

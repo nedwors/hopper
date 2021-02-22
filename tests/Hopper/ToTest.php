@@ -18,4 +18,15 @@ class ToTest extends TestCase
 
         Hop::to('foobar');
     }
+
+    /** @test */
+    public function calling_hop_with_the_default_option_will_pass_the_engine_default_option_to_the_engine()
+    {
+        $this->mock(Engine::class)
+            ->shouldReceive('use')
+            ->once()
+            ->withArgs([Engine::DEFAULT]);
+
+        Hop::to(Hop::getFacadeRoot()::DEFAULT);
+    }
 }

@@ -39,7 +39,10 @@ class Engine implements Contracts\Engine
 
     public function use(string $database)
     {
-        $database = $this->swapForDefaultDatabaseIfDefaultGitBranch($database);
+        $database = $database == self::DEFAULT
+            ? $this->defaultDatabase
+            : $this->swapForDefaultDatabaseIfDefaultGitBranch($database);
+
 
         $this->isDefault($database)
             ? $this->useDefault()
