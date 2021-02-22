@@ -2,7 +2,6 @@
 
 namespace Nedwors\Hopper;
 
-use Nedwors\Hopper\Facades\Git;
 use Nedwors\Hopper\Contracts\Engine;
 use Illuminate\Support\Facades\Artisan;
 
@@ -10,9 +9,9 @@ class Hopper
 {
     protected Engine $engine;
 
-    public function __construct(Engine $engine)
+    public function __construct()
     {
-        $this->engine = $engine;
+        $this->engine = $this->resolveEngine();
     }
 
     public function to(string $database)
@@ -53,5 +52,10 @@ class Hopper
         return collect(config('hopper.boot-checks'))
                 ->map(fn($check) => app($check))
                 ->every(fn($check) => $check->check());
+    }
+
+    protected function resolveEngine()
+    {
+        return app(Engine::class);
     }
 }
