@@ -1,18 +1,19 @@
 <?php
 namespace Nedwors\Hopper\Tests\Engines;
 
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Event;
-use Nedwors\Hopper\Contracts\Connection;
-use Nedwors\Hopper\Contracts\Filer;
 use Nedwors\Hopper\Database;
 use Nedwors\Hopper\Engines\Engine;
+use Nedwors\Hopper\Tests\TestCase;
+use Nedwors\Hopper\Contracts\Filer;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Config;
+use Nedwors\Hopper\Contracts\Connection;
 use Nedwors\Hopper\Events\DatabaseCreated;
 use Nedwors\Hopper\Events\DatabaseDeleted;
-use Nedwors\Hopper\Events\DatabaseNotDeleted;
-use Nedwors\Hopper\Events\HoppedToDatabase;
 use Nedwors\Hopper\Events\HoppedToDefault;
-use Nedwors\Hopper\Tests\TestCase;
+use Nedwors\Hopper\Events\HoppedToDatabase;
+use Nedwors\Hopper\Events\DatabaseNotDeleted;
+use Nedwors\Hopper\Exceptions\NoConnectionException;
 
 class EngineTest extends TestCase
 {
@@ -33,7 +34,6 @@ class EngineTest extends TestCase
      * */
     public function use_will_ask_the_connection_to_create_a_new_database_if_it_does_not_exist($connection, $name, $database, $default)
     {
-        $database = is_callable($database) ? $database() : $database;
         Config::set("database.connections.$connection.database", $default);
 
         $this->mock(Connection::class)
@@ -55,7 +55,6 @@ class EngineTest extends TestCase
      * */
     public function use_will_not_ask_the_connection_to_create_a_new_database_if_it_exists($connection, $name, $database, $default)
     {
-        $database = is_callable($database) ? $database() : $database;
         Config::set("database.connections.$connection.database", $default);
 
         $this->mock(Connection::class)
@@ -75,7 +74,6 @@ class EngineTest extends TestCase
      * */
     public function use_will_file_the_currentHop_by_its_name_if_the_database_is_created_by_the_connection($connection, $name, $database, $default)
     {
-        $database = is_callable($database) ? $database() : $database;
         Config::set("database.connections.$connection.database", $default);
 
         $this->mock(Connection::class)
@@ -100,7 +98,6 @@ class EngineTest extends TestCase
      * */
     public function use_will_file_the_currentHop_even_if_the_database_is_not_created($connection, $name, $database, $default)
     {
-        $database = is_callable($database) ? $database() : $database;
         Config::set("database.connections.$connection.database", $default);
 
         $this->mock(Connection::class)
@@ -124,8 +121,6 @@ class EngineTest extends TestCase
      * */
     public function when_a_hop_is_filed_a_HoppedDatabase_event_is_fired($connection, $name, $database, $default)
     {
-        $database = is_callable($database) ? $database() : $database;
-
         Event::assertNotDispatched(HoppedToDatabase::class);
 
         $this->mock(Connection::class)
@@ -218,7 +213,6 @@ class EngineTest extends TestCase
      * */
     public function when_a_database_is_created_an_DatabaseCreated_event_is_fired($connection, $name, $database, $default)
     {
-        $database = is_callable($database) ? $database() : $database;
         Config::set("database.connections.$connection.database", $default);
 
         Event::assertNotDispatched(DatabaseCreated::class);
@@ -243,7 +237,6 @@ class EngineTest extends TestCase
      * */
     public function when_a_database_is_not_created_an_DatabaseCreated_event_is_not_fired($connection, $name, $database, $default)
     {
-        $database = is_callable($database) ? $database() : $database;
         Config::set("database.connections.$connection.database", $default);
 
         Event::assertNotDispatched(DatabaseCreated::class);
@@ -457,7 +450,7 @@ class EngineTest extends TestCase
      * */
     public function current_builds_and_returns_a_database_object_using_the_connection_based_on_the_filer_current_database($connection, $name, $database)
     {
-        $database = is_callable($database) ? $database() : $database;
+        $database = value($database);
 
         $this->mock(Connection::class)
             ->shouldReceive('database')
@@ -503,9 +496,9 @@ class EngineTest extends TestCase
      * @dataProvider databaseConnectionDataProvider
      * @test
      * */
-    public function calling_boot_will_set_the_database_config_database_to_the_current_hop_for_the_configured_database_driver($connection, $name, $databaseFile)
+    public function calling_boot_will_set_the_database_config_database_to_the_current_hop_for_the_configured_database_driver($connection, $name, $database)
     {
-        $database = is_callable($databaseFile) ? $databaseFile() : $databaseFile;
+        $database = value($database);
 
         $this->mock(Filer::class)
             ->shouldReceive('currentHop')
@@ -532,7 +525,7 @@ class EngineTest extends TestCase
      * */
     public function when_the_engine_boots_it_asks_the_connection_to_boot($connection, $name, $database)
     {
-        $database = is_callable($database) ? $database() : $database;
+        $database = value($database);
 
         $this->mock(Filer::class)
             ->shouldReceive('currentHop')
@@ -547,6 +540,45 @@ class EngineTest extends TestCase
             ->once();
 
         app(Engine::class)->boot();
+    }
+
+   /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function when_calling_use_if_the_connection_is_not_resolvable_a_NoConnectionException_is_thrown($connection, $name, $database)
+    {
+        $this->app->bind(Connection::class, fn() => null);
+
+        $this->expectException(NoConnectionException::class);
+
+        app(Engine::class)->use($name);
+    }
+
+   /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function when_calling_delete_if_the_connection_is_not_resolvable_a_NoConnectionException_is_thrown($connection, $name, $database)
+    {
+        $this->app->bind(Connection::class, fn() => null);
+
+        $this->expectException(NoConnectionException::class);
+
+        app(Engine::class)->delete($name);
+    }
+
+   /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function when_calling_current_if_the_connection_is_not_resolvable_a_NoConnectionException_is_thrown($connection, $name, $database)
+    {
+        $this->app->bind(Connection::class, fn() => null);
+
+        $this->expectException(NoConnectionException::class);
+
+        app(Engine::class)->current();
     }
 
     public function databaseConnectionDataProvider()
