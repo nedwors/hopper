@@ -4,7 +4,7 @@
 
 Swap - Hop - between databases with ease whilst developing locally.
 
-Ever needed to check out a colleague's PR quickly, but you've got your db set up just as you need it for the feature you're working on? Ever wanted to quickly try some new migrations/seeders, but you don't want to lose your current db?
+Ever needed to quickly check out a colleague's PR, but you've got your db set up just as you need it for the feature you're working on? Ever wanted to quickly try some new migrations/seeders, but you don't want to lose your current db?
 
 Enter Hopper... It's as simple as:
 ```bash
