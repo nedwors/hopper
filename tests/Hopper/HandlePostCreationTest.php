@@ -49,4 +49,25 @@ class HandlePostCreationTest extends TestCase
 
         Hop::handlePostCreation();
     }
+
+    /** @test */
+    public function the_steps_are_run_in_order_of_declaration()
+    {
+        $tracker = 1;
+
+        Config::set('hopper.post-creation-steps', [
+            'hopper-test',
+            function () use (&$tracker) {
+                $tracker++;
+                expect($tracker)->toEqual(3);
+            },
+        ]);
+
+        Artisan::command('hopper-test', function () use (&$tracker) {
+            $tracker++;
+            expect($tracker)->toEqual(2);
+        });
+
+        Hop::handlePostCreation();
+    }
 }

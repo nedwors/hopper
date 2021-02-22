@@ -32,10 +32,18 @@ class Hopper
 
     public function handlePostCreation()
     {
-        collect(config('hopper.post-creation-steps'))
-            ->map(fn($step) => value($step))
-            ->filter()
-            ->each(fn($command) => Artisan::call($command));
+        collect(config('hopper.post-creation-steps'))->each(fn($step) => $this->runStep($step));
+    }
+
+    protected function runStep($step)
+    {
+        if (is_callable($step)) {
+            return $step();
+        }
+
+        if (is_string($step)) {
+            return Artisan::call($step);
+        }
     }
 
     public function boot()
