@@ -23,7 +23,7 @@ Now, you're on a database for the current branch!
 You can install the package via composer:
 
 ```bash
-composer require nedwors/hopper
+composer require nedwors/hopper --dev
 ```
 
 ## Setup
@@ -93,6 +93,29 @@ Hopper steps aside when the default database is used; it doesn't touch your data
 #### Post Creation
 
 When it is the first time hopping to a database, Hopper will have to create it ready to use. Likely, you'll want to migrate and setup up this database. Hopper provides a clean way to run Post Creation Steps - see how you can set this up.
+
+### hop:current
+See the database that you are currently using for your app:
+```bash
+php artisan hop test
+
+php artisan hop:current
+
+// Currently using test
+```
+
+### hop:delete
+Deletes the given database:
+```bash
+php artisan hop:delete test
+
+// Deleted test
+```
+A couple of points...
+
+When a database is deleted, you will be moved back to your default database.
+
+Hopper is not able to delete your default database. Which is nice as it makes the package an add on rather than an integral part of your app.
 
 ### Testing
 
