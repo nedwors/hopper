@@ -9,9 +9,9 @@ class Hopper
 {
     protected Engine $engine;
 
-    public function __construct()
+    public function __construct(Engine $engine)
     {
-        $this->engine = $this->resolveEngine();
+        $this->engine = $engine;
     }
 
     public function to(string $database)
@@ -52,10 +52,5 @@ class Hopper
         return collect(config('hopper.boot-checks'))
                 ->map(fn($check) => app($check))
                 ->every(fn($check) => $check->check());
-    }
-
-    protected function resolveEngine()
-    {
-        return app(Engine::class);
     }
 }
