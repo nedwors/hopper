@@ -51,6 +51,9 @@ Commands:
 - [hop:delete](#hop:delete)
 
 Configuration:
+- [Connections](#connections)
+    - [Sqlite](#sqlite)
+    - [MySql](#mysql)
 - [Default Git Branch](#default-git-branch)
 - [Boot Checks](#boot-checks)
 - [Post Creation Steps](#post-creation-steps)
@@ -127,6 +130,78 @@ When a database is deleted, you will be moved back to your default database.
 Hopper is not able to delete your default database. Nor is it able to create it.
 
 ### Configuration
+### Connections
+Currently, Hopper has built in support for `sqlite` and `mysql` database connections. Hopper will use whichever connection you are using locally.
+
+These and future drivers are exposed and configured in the config file - which means you can add your own even if Hopper doesn't yet support it! See the existing connections in `hopper.php`:
+
+```php
+...
+
+'connections' => [
+
+    'sqlite' => [
+        'driver' => Sqlite::class,
+        'database-path' => 'hopper/'
+    ],
+
+    'mysql' => [
+        'driver' => MySql::class,
+        'database-prefix' => 'hopper_'
+    ],
+
+]
+
+...
+```
+
+If you want to add your own connection, ensure your connection class implements the `Connection` interface, and then add it under the `driver` config key of the relevant connection key. For the configuration of each connection, see their respective sections.
+
+#### Sqlite
+Hopper stores all Sqlite databases withina relative directory in the database directory of your application. You can configure the name of the directory in the config file:
+```php
+...
+
+'connections' => [
+
+    'sqlite' => [
+        'driver' => Sqlite::class,
+        'database-path' => 'hopper/'
+    ],
+
+]
+
+...
+```
+So, as you might expect, all temporary databases created by Hopper will be stored in `database/hopper/`. So for example, running this command...
+```bash
+php artisan hop test
+```
+...will create a sqlite database at `database/hopper/test.sqlite`.
+> The `hopper` directory will be created by Hopper if it doesn't alrady exist
+#### MySql
+Hopper creates all MySql on your configured MySql connection. All databases created by Hopper will have a prefix applied to their name so you can easily identify them as needed. You can configure the prefix in the config file:
+```php
+...
+
+'connections' => [
+
+    'sqlite' => [
+        'driver' => MySql::class,
+        'database-prefix' => 'hopper_'
+    ],
+
+]
+
+...
+```
+So for example, running this command...
+```bash
+php artisan hop test
+```
+...will create a MySQl database called `hopper_test`.
+> All dashes passed to hopper will be automatically converted to underscores for the MySql connection. So for instance, `hop this-database` will create a database called `hopper_this_database`
+
 ### Default Git Branch
 You should define here the name of the default git branch in your project.
 
