@@ -479,7 +479,9 @@ class EngineTest extends TestCase
             ->withArgs([$name])
             ->andReturn($database)
             ->shouldReceive('name')
-            ->andReturn($connection);
+            ->andReturn($connection)
+            ->shouldReceive('exists')
+            ->andReturn(true);
 
         $this->mock(Filer::class)
             ->shouldReceive('currentHop')
@@ -513,6 +515,29 @@ class EngineTest extends TestCase
         expect(app(Engine::class)->current())->toBeNull();
     }
 
+    /**
+     * @dataProvider databaseConnectionDataProvider
+     * @test
+     * */
+    public function current_returns_null_if_the_connection_returns_false_for_exists($connection, $name, $database, $default)
+    {
+        $database = value($database);
+
+        $this->mock(Connection::class)
+            ->shouldNotReceive('database')
+            ->shouldReceive('name')
+            ->andReturn($connection)
+            ->shouldReceive('exists')
+            ->andReturn(false);
+
+        $this->mock(Filer::class)
+            ->shouldReceive('currentHop')
+            ->once()
+            ->andReturn($name);
+
+        expect(app(Engine::class)->current())->toBeNull();
+    }
+
    /**
      * @dataProvider databaseConnectionDataProvider
      * @test
@@ -533,6 +558,8 @@ class EngineTest extends TestCase
             ->andReturn($database)
             ->shouldReceive('name')
             ->andReturn($connection)
+            ->shouldReceive('exists')
+            ->andReturn(true)
             ->shouldReceive('boot');
 
         app(Engine::class)->boot();
@@ -557,6 +584,8 @@ class EngineTest extends TestCase
             ->andReturn($database)
             ->shouldReceive('name')
             ->andReturn($connection)
+            ->shouldReceive('exists')
+            ->andReturn(true)
             ->shouldReceive('boot')
             ->once();
 

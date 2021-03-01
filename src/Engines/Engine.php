@@ -108,6 +108,10 @@ class Engine implements Contracts\Engine
             return null;
         }
 
+        if (!$this->exists($name)) {
+            return null;
+        }
+
         return new Database(
             $name,
             $this->connection->database($name),
