@@ -70,11 +70,11 @@ This option is where Hopper really shines. Simply checkout a branch, hop, and yo
 
 To use Hopper this way, simply hop without arguments:
 ```bash
-git checkout -b new-feature
+git checkout -b updates
 
 php artisan hop
 ```
-Now, when using your app, it will be connected to the `new-feature` database.
+Now, when using your app, it will be connected to the `updates` database.
 
 Your default Git branch aliases to your default database. So, imagine `main` is your default branch. When you run this:
 ```bash
@@ -104,10 +104,10 @@ Now, your app simply uses the default database as is set up in Laravel.
 
 #### Post Creation
 
-When it is the first time using a database, Hopper will have to create it ready to use. Likely, you'll want to migrate and setup up this database. Hopper provides a clean way to run Post Creation Steps - see how you can set this up.
+When it is the first time using a database, Hopper will have to create it ready to use. Likely, you'll want to migrate and setup up this database. Hopper provides a clean way to run Post Creation Steps - [see how you can set this up](#post-creation-steps).
 
 ### hop:current
-See the database that you are currently using for your app:
+See the database that you are currently using:
 ```bash
 php artisan hop test
 
@@ -117,17 +117,15 @@ php artisan hop:current
 ```
 
 ### hop:delete
-Deletes the given database:
+Delete the given database:
 ```bash
 php artisan hop:delete test
 
 // Deleted test
 ```
-A couple of points...
-
-When a database is deleted, you will be moved back to your default database.
-
-Hopper is not able to delete your default database. Nor is it able to create it.
+A couple of points:
+- When a database is deleted, you will be moved back to your default database.
+- Hopper is not able to delete your default database. Nor is it able to create it.
 
 ### Configuration
 ### Connections
@@ -158,7 +156,7 @@ These and future drivers are exposed and configured in the config file - which m
 If you want to add your own connection, ensure your connection class implements the `Connection` interface, and then add it under the `driver` config key of the relevant connection key. For the configuration of each connection, see their respective sections.
 
 #### Sqlite
-Hopper stores all Sqlite databases withina relative directory in the database directory of your application. You can configure the name of the directory in the config file:
+Hopper stores all Sqlite databases within a relative directory in the database directory of your application. You can configure the name of the directory in the config file:
 ```php
 ...
 
@@ -178,9 +176,9 @@ So, as you might expect, all temporary databases created by Hopper will be store
 php artisan hop test
 ```
 ...will create a sqlite database at `database/hopper/test.sqlite`.
-> The `hopper` directory will be created by Hopper if it doesn't alrady exist
+> The `hopper` directory will be created by Hopper if it doesn't already exist
 #### MySql
-Hopper creates all MySql on your configured MySql connection. All databases created by Hopper will have a prefix applied to their name so you can easily identify them as needed. You can configure the prefix in the config file:
+Hopper creates all MySql databases on your configured MySql connection. All databases created by Hopper will have a prefix applied to their name so you can easily identify them as needed. You can configure the prefix in the config file:
 ```php
 ...
 
@@ -199,7 +197,7 @@ So for example, running this command...
 ```bash
 php artisan hop test
 ```
-...will create a MySQl database called `hopper_test`.
+...will create a MySql database called `hopper_test`.
 > All dashes passed to hopper will be automatically converted to underscores for the MySql connection. So for instance, `hop this-database` will create a database called `hopper_this_database`
 
 ### Default Git Branch
