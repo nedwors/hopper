@@ -40,9 +40,7 @@ class Sqlite implements Connection
 
     public function boot()
     {
-        if (!File::exists($hopperDirectory = database_path($this->hopperDirectory()))) {
-            File::makeDirectory($hopperDirectory);
-        }
+        File::ensureDirectoryExists(database_path($this->hopperDirectory()));
     }
 
     protected function hopperDirectory()

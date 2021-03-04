@@ -92,11 +92,7 @@ class SqliteTest extends TestCase
         Config::set('hopper.connections.sqlite.database-path', 'hopper/');
 
         File::partialMock()
-            ->shouldReceive('exists')
-            ->once()
-            ->withArgs([database_path('hopper/')])
-            ->andReturn(false)
-            ->shouldReceive('makeDirectory')
+            ->shouldReceive('ensureDirectoryExists')
             ->once()
             ->withArgs([database_path('hopper/')]);
 
