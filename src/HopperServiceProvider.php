@@ -46,13 +46,16 @@ class HopperServiceProvider extends PackageServiceProvider
         $supportedConnections = config('hopper.connections');
         $connection = config('database.default');
 
-        $this->isUsingSupportedConnection = in_array($connection, array_keys($supportedConnections));
-
-        if (!$this->isUsingSupportedConnection) {
+        if (!$this->isUsingSupportedConnection($connection, $supportedConnections)) {
             return;
         }
 
         $this->app->bind(Connection::class, $supportedConnections[$connection]['driver']);
+    }
+
+    protected function isUsingSupportedConnection($connection, $supportedConnections)
+    {
+        return in_array($connection, array_keys($supportedConnections));
     }
 
     public function packageBooted()
