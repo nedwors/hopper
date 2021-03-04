@@ -2,6 +2,7 @@
 
 namespace Nedwors\Hopper;
 
+use Illuminate\Console\Command;
 use Nedwors\Hopper\Contracts\Engine;
 use Illuminate\Support\Facades\Artisan;
 
@@ -32,19 +33,20 @@ class Hopper
         $this->engine->delete($database);
     }
 
-    public function handlePostCreation()
+    public function handlePostCreation(?Command $command = null)
     {
-        collect(config('hopper.post-creation-steps'))->each(fn($step) => $this->runStep($step));
+        collect(config('hopper.post-creation-steps'))
+            ->each(fn($step) => $this->runStep($step, $command));
     }
 
-    protected function runStep($step)
+    protected function runStep($step, ?Command $command = null)
     {
         if (is_callable($step)) {
             return $step();
         }
 
         if (is_string($step)) {
-            return Artisan::call($step);
+            return $command ? $command->call($step) : Artisan::call($step);
         }
     }
 
