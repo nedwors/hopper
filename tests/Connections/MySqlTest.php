@@ -39,21 +39,6 @@ class MySqlTest extends TestCase
     }
 
     /** @test */
-    public function any_dashes_will_be_replaced_with_underscores_on_create()
-    {
-        DB::partialMock()
-            ->shouldReceive('statement')
-            ->once()
-            ->withArgs(function ($statement, $parameter) {
-                expect($statement)->toEqual("CREATE DATABASE IF NOT EXISTS ?");
-                expect($parameter)->toEqual(['hopper_test_database_with_underscores']);
-                return true;
-            });
-
-        app(MySql::class)->create('test-database_with-underscores');
-    }
-
-    /** @test */
     public function the_delete_method_will_execute_a_db_statement()
     {
         DB::partialMock()
@@ -66,21 +51,6 @@ class MySqlTest extends TestCase
             });
 
         app(MySql::class)->delete('hopper_test');
-    }
-
-    /** @test */
-    public function any_dashes_will_be_replaced_with_underscores_on_delete()
-    {
-        DB::partialMock()
-            ->shouldReceive('statement')
-            ->once()
-            ->withArgs(function ($statement, $parameter) {
-                expect($statement)->toEqual("DROP DATABASE IF EXISTS ?");
-                expect($parameter)->toEqual(['hopper_test_database_with_underscores']);
-                return true;
-            });
-
-        app(MySql::class)->delete('test-database_with-underscores');
     }
 
     /** @test */
@@ -97,22 +67,6 @@ class MySqlTest extends TestCase
             ->andReturn([]);
 
         app(MySql::class)->exists('hopper_test');
-    }
-
-    /** @test */
-    public function any_dashes_will_be_replaced_with_underscores_on_exists()
-    {
-        DB::partialMock()
-            ->shouldReceive('select')
-            ->once()
-            ->withArgs(function ($statement, $parameter) {
-                expect($statement)->toEqual("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?");
-                expect($parameter)->toEqual(['hopper_test_database_with_underscores']);
-                return true;
-            })
-            ->andReturn([]);
-
-        app(MySql::class)->exists('test-database_with-underscores');
     }
 
     /** @test */
@@ -155,5 +109,23 @@ class MySqlTest extends TestCase
         $database = app(MySql::class)->database('hopper_test');
 
         expect($database)->toEqual('hopper_hopper_test');
+    }
+
+    /**
+     * @dataProvider sanitizableNamesDataProvider
+     * @test
+     * */
+    public function sanitize_will_sanitize_the_given_database_name_appropriate_for_mysql_databases($unsanitized, $sanitized)
+    {
+        expect(app(MySql::class)->sanitize($unsanitized))->toEqual($sanitized);
+    }
+
+    public function sanitizableNamesDataProvider()
+    {
+        return [
+            ['this-has-dashes', 'this_has_dashes'],
+            ['has-some_dashes', 'has_some_dashes'],
+            ['no_dashes', 'no_dashes'],
+        ];
     }
 }

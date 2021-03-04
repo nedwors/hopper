@@ -3,3 +3,4 @@ docs
 vendor
 coverage
 .phpunit.result.cache
+hopper.json
