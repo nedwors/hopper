@@ -12,6 +12,7 @@ use Spatie\LaravelPackageTools\Package;
 use Nedwors\Hopper\Contracts\Connection;
 use Nedwors\Hopper\Console\DeleteCommand;
 use Nedwors\Hopper\Console\CurrentCommand;
+use Nedwors\Hopper\Console\PublishCommand;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 class HopperServiceProvider extends PackageServiceProvider
@@ -32,7 +33,12 @@ class HopperServiceProvider extends PackageServiceProvider
     {
         $package->name('hopper')
             ->hasConfigFile()
-            ->hasCommands([CurrentCommand::class, DeleteCommand::class, HopCommand::class]);
+            ->hasCommands([
+                PublishCommand::class,
+                CurrentCommand::class,
+                DeleteCommand::class,
+                HopCommand::class
+            ]);
     }
 
     public function packageRegistered()
