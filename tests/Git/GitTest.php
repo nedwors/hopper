@@ -2,9 +2,9 @@
 
 namespace Nedwors\Hopper\Tests\Git;
 
-use Illuminate\Support\Facades\Config;
 use Nedwors\Hopper\Facades\Git;
 use Nedwors\Hopper\Tests\TestCase;
+use Illuminate\Support\Facades\Config;
 
 class GitTest extends TestCase
 {

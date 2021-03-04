@@ -2,10 +2,10 @@
 
 namespace Nedwors\Hopper\Tests\Hopper;
 
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Config;
 use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Tests\TestCase;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Artisan;
 
 class HandlePostCreationTest extends TestCase
 {

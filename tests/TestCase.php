@@ -2,9 +2,8 @@
 
 namespace Nedwors\Hopper\Tests;
 
-use Illuminate\Support\Facades\Event;
-use Nedwors\Hopper\HopperServiceProvider;
 use Orchestra\Testbench;
+use Nedwors\Hopper\HopperServiceProvider;
 
 abstract class TestCase extends Testbench\TestCase
 {

@@ -2,10 +2,10 @@
 
 namespace Nedwors\Hopper\Tests\Connections;
 
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\File;
-use Nedwors\Hopper\Connections\Sqlite;
 use Nedwors\Hopper\Tests\TestCase;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Config;
+use Nedwors\Hopper\Connections\Sqlite;
 
 class SqliteTest extends TestCase
 {

@@ -2,13 +2,13 @@
 namespace Nedwors\Hopper\Tests\Engines;
 
 use Nedwors\Hopper\Database;
+use Nedwors\Hopper\Contracts;
 use Nedwors\Hopper\Engines\Engine;
 use Nedwors\Hopper\Tests\TestCase;
 use Nedwors\Hopper\Contracts\Filer;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Config;
 use Nedwors\Hopper\Contracts\Connection;
-use Nedwors\Hopper\Contracts;
 use Nedwors\Hopper\Events\DatabaseCreated;
 use Nedwors\Hopper\Events\DatabaseDeleted;
 use Nedwors\Hopper\Events\HoppedToDefault;

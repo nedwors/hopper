@@ -2,14 +2,14 @@
 
 namespace Nedwors\Hopper\Tests\Console;
 
-use Illuminate\Support\Facades\Config;
-use Nedwors\Hopper\Events\DatabaseCreated;
-use Nedwors\Hopper\Events\HoppedToDatabase;
-use Nedwors\Hopper\Events\HoppedToDefault;
-use Nedwors\Hopper\Exceptions\NoConnectionException;
 use Nedwors\Hopper\Facades\Git;
 use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Tests\TestCase;
+use Illuminate\Support\Facades\Config;
+use Nedwors\Hopper\Events\DatabaseCreated;
+use Nedwors\Hopper\Events\HoppedToDefault;
+use Nedwors\Hopper\Events\HoppedToDatabase;
+use Nedwors\Hopper\Exceptions\NoConnectionException;
 
 class HopCommandTest extends TestCase
 {

@@ -2,9 +2,9 @@
 
 namespace Nedwors\Hopper\Connections;
 
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use Nedwors\Hopper\Contracts\Connection;
-use Illuminate\Support\Str;
 
 class Sqlite implements Connection
 {

@@ -2,10 +2,10 @@
 
 namespace Nedwors\Hopper\Tests\Connections;
 
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
-use Nedwors\Hopper\Connections\MySql;
 use Nedwors\Hopper\Tests\TestCase;
+use Nedwors\Hopper\Connections\MySql;
+use Illuminate\Support\Facades\Config;
 
 class MySqlTest extends TestCase
 {

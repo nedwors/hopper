@@ -2,8 +2,8 @@
 
 namespace Nedwors\Hopper\Filers;
 
-use Illuminate\Support\Facades\File;
 use Nedwors\Hopper\Contracts\Filer;
+use Illuminate\Support\Facades\File;
 
 class JsonFiler implements Filer
 {
