@@ -57,6 +57,8 @@ class Engine implements Contracts\Engine
 
     protected function useNonDefault(string $database)
     {
+        $database = $this->sanitize($database);
+
         $this->createIfNeeded($database);
 
         $this->filer->setCurrentHop($database);
@@ -86,6 +88,8 @@ class Engine implements Contracts\Engine
             DatabaseNotDeleted::dispatch($database, DatabaseNotDeleted::DEFAULT);
             return;
         }
+
+        $database = $this->sanitize($database);
 
         if (!$this->exists($database)) {
             DatabaseNotDeleted::dispatch($database, DatabaseNotDeleted::DOES_NOT_EXIST);
@@ -122,6 +126,11 @@ class Engine implements Contracts\Engine
     protected function isDefault(string $name)
     {
         return $name === $this->defaultDatabase;
+    }
+
+    protected function sanitize($database)
+    {
+        return $this->connection->sanitize($database);
     }
 
     public function boot()

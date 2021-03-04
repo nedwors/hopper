@@ -8,6 +8,11 @@ use Illuminate\Support\Str;
 
 class Sqlite implements Connection
 {
+    public function sanitize(string $name): string
+    {
+        return str_replace('/', '-', $name);
+    }
+
     public function create(string $name)
     {
         File::put($this->database($name), '');

@@ -4,6 +4,8 @@ namespace Nedwors\Hopper\Contracts;
 
 interface Connection
 {
+    public function sanitize(string $name): string;
+
     public function name(): string;
 
     public function create(string $name);

@@ -15,6 +15,11 @@ class MySql implements Connection
         $this->prefix = config('hopper.connections.mysql.database-prefix') ?? self::DEFAULT_PREFIX;
     }
 
+    public function sanitize(string $name): string
+    {
+        return str_replace('-', '_', $name);
+    }
+
     public function create(string $name)
     {
         DB::statement("CREATE DATABASE IF NOT EXISTS ?", [$this->database($name)]);
@@ -34,7 +39,7 @@ class MySql implements Connection
 
     public function database(string $name): string
     {
-        return $this->prefix . str_replace('-', '_', $name);
+        return "{$this->prefix}{$name}";
     }
 
     public function name(): string

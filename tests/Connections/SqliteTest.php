@@ -102,4 +102,21 @@ class SqliteTest extends TestCase
 
         app(Sqlite::class)->boot();
     }
+
+    /**
+     * @dataProvider sanitizableNamesDataProvider
+     * @test
+     * */
+    public function sanitize_will_sanitize_the_given_database_name_appropriate_for_sqlite_databases($unsanitized, $sanitized)
+    {
+        expect(app(Sqlite::class)->sanitize($unsanitized))->toEqual($sanitized);
+    }
+
+    public function sanitizableNamesDataProvider()
+    {
+        return [
+            ['this-has-dashes', 'this-has-dashes'],
+            ['this/has/slashes', 'this-has-slashes'],
+        ];
+    }
 }

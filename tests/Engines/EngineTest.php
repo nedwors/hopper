@@ -38,6 +38,8 @@ class EngineTest extends TestCase
         Config::set("database.connections.$connection.database", $default);
 
         $this->mock(Connection::class)
+            ->shouldReceive('sanitize')
+            ->andReturn($name)
             ->shouldReceive('name')
             ->andReturn($connection)
             ->shouldReceive('exists')
@@ -79,6 +81,8 @@ class EngineTest extends TestCase
         Config::set("database.connections.$connection.database", $default);
 
         $this->mock(Connection::class)
+            ->shouldReceive('sanitize')
+            ->andReturn($name)
             ->shouldReceive('name')
             ->andReturn($connection)
             ->shouldReceive('exists')
@@ -98,6 +102,8 @@ class EngineTest extends TestCase
         Config::set("database.connections.$connection.database", $default);
 
         $this->mock(Connection::class)
+            ->shouldReceive('sanitize')
+            ->andReturn($name)
             ->shouldReceive('name')
             ->andReturn($connection)
             ->shouldReceive('exists')
@@ -122,6 +128,8 @@ class EngineTest extends TestCase
         Config::set("database.connections.$connection.database", $default);
 
         $this->mock(Connection::class)
+            ->shouldReceive('sanitize')
+            ->andReturn($name)
             ->shouldReceive('name')
             ->andReturn($connection)
             ->shouldReceive('exists')
@@ -145,6 +153,8 @@ class EngineTest extends TestCase
         Event::assertNotDispatched(HoppedToDatabase::class);
 
         $this->mock(Connection::class)
+            ->shouldReceive('sanitize')
+            ->andReturn($name)
             ->shouldReceive('name')
             ->andReturn($connection)
             ->shouldReceive('exists')
@@ -215,6 +225,8 @@ class EngineTest extends TestCase
         Event::assertNotDispatched(HoppedToDefault::class);
 
         $this->mock(Connection::class)
+            ->shouldReceive('sanitize')
+            ->andReturn($name)
             ->shouldReceive('name')
             ->andReturn($connection)
             ->shouldNotReceive('create');
@@ -239,6 +251,8 @@ class EngineTest extends TestCase
         Event::assertNotDispatched(DatabaseCreated::class);
 
         $this->mock(Connection::class)
+            ->shouldReceive('sanitize')
+            ->andReturn($name)
             ->shouldReceive('name')
             ->andReturn($connection)
             ->shouldReceive('exists')
@@ -263,6 +277,8 @@ class EngineTest extends TestCase
         Event::assertNotDispatched(DatabaseCreated::class);
 
         $this->mock(Connection::class)
+            ->shouldReceive('sanitize')
+            ->andReturn($name)
             ->shouldReceive('name')
             ->andReturn($connection)
             ->shouldReceive('exists')
@@ -281,6 +297,8 @@ class EngineTest extends TestCase
     public function delete_will_ask_the_connection_to_delete_the_given_database_if_it_exists($connection, $name, $database, $default)
     {
         $this->mock(Connection::class)
+            ->shouldReceive('sanitize')
+            ->andReturn($name)
             ->shouldReceive('name')
             ->andReturn($connection)
             ->shouldReceive('exists')
@@ -306,6 +324,8 @@ class EngineTest extends TestCase
             ->once();
 
         $this->mock(Connection::class)
+            ->shouldReceive('sanitize')
+            ->andReturn($name)
             ->shouldReceive('name')
             ->andReturn($connection)
             ->shouldReceive('exists')
@@ -327,6 +347,8 @@ class EngineTest extends TestCase
     public function delete_will_not_ask_the_connection_to_delete_the_given_database_if_it_doesnt_exist($connection, $name, $database, $default)
     {
         $this->mock(Connection::class)
+            ->shouldReceive('sanitize')
+            ->andReturn($name)
             ->shouldReceive('name')
             ->andReturn($connection)
             ->shouldReceive('exists')
@@ -380,6 +402,8 @@ class EngineTest extends TestCase
         Event::assertNotDispatched(DatabaseDeleted::class);
 
         $this->mock(Connection::class)
+            ->shouldReceive('sanitize')
+            ->andReturn($name)
             ->shouldReceive('name')
             ->andReturn($connection)
             ->shouldReceive('exists')
@@ -404,6 +428,8 @@ class EngineTest extends TestCase
         Event::assertNotDispatched(DatabaseDeleted::class);
 
         $this->mock(Connection::class)
+            ->shouldReceive('sanitize')
+            ->andReturn($name)
             ->shouldReceive('name')
             ->andReturn($connection)
             ->shouldReceive('exists')
@@ -425,6 +451,8 @@ class EngineTest extends TestCase
         Event::assertNotDispatched(DatabaseNotDeleted::class);
 
         $this->mock(Connection::class)
+            ->shouldReceive('sanitize')
+            ->andReturn($name)
             ->shouldReceive('name')
             ->andReturn($connection)
             ->shouldReceive('exists')
@@ -452,6 +480,8 @@ class EngineTest extends TestCase
         Config::set("database.connections.$connection.database", $default);
 
         $this->mock(Connection::class)
+            ->shouldReceive('sanitize')
+            ->andReturn($name)
             ->shouldReceive('name')
             ->andReturn($connection)
             ->shouldNotReceive('delete');
