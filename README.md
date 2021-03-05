@@ -124,9 +124,7 @@ php artisan hop:delete test
 
 // Deleted test
 ```
-A couple of points:
-- When a database is deleted, you will be moved back to your default database.
-- Hopper is not able to delete your default database. Nor is it able to create it.
+When a database is deleted, you will be moved back to your default database.
 
 ### Configuration
 ### Default Git Branch
