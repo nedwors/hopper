@@ -1,3 +1,5 @@
+![](https://banners.beyondco.de/Hopper.png?theme=light&packageManager=composer+require&packageName=nedwors%2Fhopper+--dev&pattern=pieFactory&style=style_1&description=&md=1&showWatermark=1&fontSize=100px&images=database)
+
 # Hopper
 
 ![Tests](https://github.com/nedwors/hopper/workflows/Tests/badge.svg)
