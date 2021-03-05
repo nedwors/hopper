@@ -2,11 +2,11 @@
 
 ![Tests](https://github.com/nedwors/hopper/workflows/Tests/badge.svg)
 
-Hop between databases with ease whilst developing locally.
+Hop between databases with ease whilst developing locally on Laravel.
 
 Imagine: A colleague asks you to check their PR out. But you're working on a new feature yourself and your local database is \*just\* right. You've got it tuned with the right models, the right data - losing it would just be an inconvenience too far...
 
-So now imagine: A colleague asks you to check their PR out. You can jump onto their branch, set up your database - migrate it, seed it, wipe it, whatever - and review their work. Then, you return to your feature and pick up where you left off - *with your database still intact*.
+So now imagine: A colleague asks you to check their PR out. You jump onto their branch, set up your database - migrate it, seed it, wipe it, whatever - and review their work. Then, you return to your feature and pick up where you left off - *with your database still intact*.
 
 Enter Hopper. It's as simple as:
 ```bash
@@ -47,14 +47,15 @@ a hop:publish
 
 Commands:
 - [hop](#hop)
-- [hop:current](#hop:current)
-- [hop:delete](#hop:delete)
+- [hop:current](#hopcurrent)
+- [hop:delete](#hopdelete)
 
 Configuration:
+- [Default Git Branch](#default-git-branch)
 - [Connections](#connections)
     - [Sqlite](#sqlite)
     - [MySql](#mysql)
-- [Default Git Branch](#default-git-branch)
+    - [Adding Your Own](#adding-your-own)
 - [Boot Checks](#boot-checks)
 - [Post Creation Steps](#post-creation-steps)
 
@@ -104,7 +105,7 @@ Now, your app simply uses the default database as is set up in Laravel.
 
 #### Post Creation
 
-When it is the first time using a database, Hopper will have to create it ready to use. Likely, you'll want to migrate and setup up this database. Hopper provides a clean way to run Post Creation Steps - [see how you can set this up](#post-creation-steps).
+When it is the first time using a database, Hopper will create it ready to use. Likely, you'll want to migrate and setup up this database. Hopper provides a clean way to run Post Creation Steps - [see how you can set these up](#post-creation-steps).
 
 ### hop:current
 See the database that you are currently using:
@@ -128,10 +129,23 @@ A couple of points:
 - Hopper is not able to delete your default database. Nor is it able to create it.
 
 ### Configuration
-### Connections
-Currently, Hopper has built in support for `sqlite` and `mysql` database connections. Hopper will use whichever connection you are using locally.
+### Default Git Branch
+You should define here the name of the default git branch in your project:
 
-These and future drivers are exposed and configured in the config file - which means you can add your own even if Hopper doesn't yet support it! See the existing connections in `hopper.php`:
+```php
+...
+
+'default-branch' => [
+    'main'
+]
+
+...
+```
+Now, every time you [hop](#hop) on this branch without arguments, your default database will be used automatically - rather than a database called `main`.
+### Connections
+Currently, Hopper has built in support for `sqlite` and `mysql` database connections. Hopper will automatically use whichever connection you are using.
+
+These and future drivers are exposed and configured in the config file - which means you can add your own even if Hopper doesn't yet support it natively! See the supported connections in `hopper.php`:
 
 ```php
 ...
@@ -152,8 +166,6 @@ These and future drivers are exposed and configured in the config file - which m
 
 ...
 ```
-
-If you want to add your own connection, ensure your connection class implements the `Connection` interface, and then add it under the `driver` config key of the relevant connection key. For the configuration of each connection, see their respective sections.
 
 #### Sqlite
 Hopper stores all Sqlite databases within a relative directory in the database directory of your application. You can configure the name of the directory in the config file:
@@ -177,8 +189,10 @@ php artisan hop test
 ```
 ...will create a sqlite database at `database/hopper/test.sqlite`.
 > The `hopper` directory will be created by Hopper if it doesn't already exist
+
+> All database names passed to hopper when using Sqlite will be sanitized. Slashes will be automatically converted to dashes for the Sqlite connection. So for instance, `hop this/database` will create a database called `this-database.sqlite`
 #### MySql
-Hopper creates all MySql databases on your configured MySql connection. All databases created by Hopper will have a prefix applied to their name so you can easily identify them as needed. You can configure the prefix in the config file:
+Hopper creates all MySql databases on your configured MySql connection. All databases created will have a prefix applied to their name so you can easily identify them as needed. You can configure the prefix in the config file:
 ```php
 ...
 
@@ -198,21 +212,31 @@ So for example, running this command...
 php artisan hop test
 ```
 ...will create a MySql database called `hopper_test`.
-> All dashes passed to hopper will be automatically converted to underscores for the MySql connection. So for instance, `hop this-database` will create a database called `hopper_this_database`
 
-### Default Git Branch
-You should define here the name of the default git branch in your project.
+> All database names passed to hopper when using MySql will be sanitized. Dashes will be automatically converted to underscores for the MySql connection. So for instance, `hop this-database` will create a database called `hopper_this_database`
 
+#### Adding your own
+Hopper makes it nice and easy to add your own connection for a database type this is supported by Laravel but not by Hopper.
+
+To add your own connection, create a class that implements the `Connection` interface. You can refer to the existing connections to see how to build your new implementation. When you are ready to implement it, add it to the connections array:
 ```php
 ...
 
-'default-branch' => [
-    'main'
+'connections' => [
+
+    ...
+
+    'newconnection' => [
+        'driver' => NewConnection::class
+    ],
+
+    ...
+
 ]
 
 ...
 ```
-Now, every time you [hop](#hop) on this branch, the default database will be used automatically. This makes it super easy to return home when needed. Don't worry though, you can always use a specific database instead.
+
 ### Boot Checks
 Hopper exposes the checks it runs prior to wiring up your database connection. This way, you can alter the existing checks and/or add your own if needed. They are found in the `hopper.php` config file:
 
