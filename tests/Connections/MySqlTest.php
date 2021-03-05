@@ -27,7 +27,7 @@ class MySqlTest extends TestCase
     public function the_create_method_will_execute_a_db_statement()
     {
         DB::partialMock()
-            ->shouldReceive('statement')
+            ->shouldReceive('raw')
             ->once()
             ->withArgs(function ($statement, $parameter) {
                 expect($statement)->toEqual("CREATE DATABASE IF NOT EXISTS ?");
@@ -42,7 +42,7 @@ class MySqlTest extends TestCase
     public function the_delete_method_will_execute_a_db_statement()
     {
         DB::partialMock()
-            ->shouldReceive('statement')
+            ->shouldReceive('raw')
             ->once()
             ->withArgs(function ($statement, $parameter) {
                 expect($statement)->toEqual("DROP DATABASE IF EXISTS ?");
@@ -75,7 +75,7 @@ class MySqlTest extends TestCase
         Config::set('hopper.connections.mysql.database-prefix', 'this_is_a_test_');
 
         DB::partialMock()
-            ->shouldReceive('statement')
+            ->shouldReceive('raw')
             ->once()
             ->withArgs(function ($statement, $parameter) {
                 expect($statement)->toEqual("CREATE DATABASE IF NOT EXISTS ?");
@@ -92,7 +92,7 @@ class MySqlTest extends TestCase
         Config::set('hopper.connections.mysql.database-prefix', null);
 
         DB::partialMock()
-            ->shouldReceive('statement')
+            ->shouldReceive('raw')
             ->once()
             ->withArgs(function ($statement, $parameter) {
                 expect($statement)->toEqual("CREATE DATABASE IF NOT EXISTS ?");
