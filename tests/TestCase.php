@@ -20,4 +20,12 @@ abstract class TestCase extends Testbench\TestCase
             HopperServiceProvider::class
         ];
     }
+
+    public function databaseConnectionDataProvider()
+    {
+        return [
+            ['sqlite', 'foobar', fn() => database_path('foobar.sqlite'), 'database'],
+            ['mysql', 'foobar', 'hopper_foobar', 'hopper'],
+        ];
+    }
 }
