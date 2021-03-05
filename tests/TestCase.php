@@ -24,7 +24,7 @@ abstract class TestCase extends Testbench\TestCase
     public function databaseConnectionDataProvider()
     {
         return [
-            ['sqlite', 'foobar', fn() => database_path('foobar.sqlite'), 'database'],
+            ['sqlite', 'foobar', fn() => database_path('foobar.sqlite'), 'database/database.sqlite'],
             ['mysql', 'foobar', 'hopper_foobar', 'hopper'],
         ];
     }

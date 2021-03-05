@@ -27,11 +27,10 @@ class MySqlTest extends TestCase
     public function the_create_method_will_execute_a_db_statement()
     {
         DB::partialMock()
-            ->shouldReceive('raw')
+            ->shouldReceive('statement')
             ->once()
-            ->withArgs(function ($statement, $parameter) {
-                expect($statement)->toEqual("CREATE DATABASE IF NOT EXISTS ?");
-                expect($parameter)->toEqual(['hopper_hopper_test']);
+            ->withArgs(function ($statement) {
+                expect($statement)->toEqual("CREATE DATABASE IF NOT EXISTS hopper_hopper_test");
                 return true;
             });
 
@@ -42,11 +41,10 @@ class MySqlTest extends TestCase
     public function the_delete_method_will_execute_a_db_statement()
     {
         DB::partialMock()
-            ->shouldReceive('raw')
+            ->shouldReceive('statement')
             ->once()
-            ->withArgs(function ($statement, $parameter) {
-                expect($statement)->toEqual("DROP DATABASE IF EXISTS ?");
-                expect($parameter)->toEqual(['hopper_hopper_test']);
+            ->withArgs(function ($statement) {
+                expect($statement)->toEqual("DROP DATABASE IF EXISTS hopper_hopper_test");
                 return true;
             });
 
@@ -75,11 +73,10 @@ class MySqlTest extends TestCase
         Config::set('hopper.connections.mysql.database-prefix', 'this_is_a_test_');
 
         DB::partialMock()
-            ->shouldReceive('raw')
+            ->shouldReceive('statement')
             ->once()
-            ->withArgs(function ($statement, $parameter) {
-                expect($statement)->toEqual("CREATE DATABASE IF NOT EXISTS ?");
-                expect($parameter)->toEqual(['this_is_a_test_hopper_test']);
+            ->withArgs(function ($statement) {
+                expect($statement)->toEqual("CREATE DATABASE IF NOT EXISTS this_is_a_test_hopper_test");
                 return true;
             });
 
@@ -92,11 +89,10 @@ class MySqlTest extends TestCase
         Config::set('hopper.connections.mysql.database-prefix', null);
 
         DB::partialMock()
-            ->shouldReceive('raw')
+            ->shouldReceive('statement')
             ->once()
-            ->withArgs(function ($statement, $parameter) {
-                expect($statement)->toEqual("CREATE DATABASE IF NOT EXISTS ?");
-                expect($parameter)->toEqual(['hopper_hopper_test']);
+            ->withArgs(function ($statement) {
+                expect($statement)->toEqual("CREATE DATABASE IF NOT EXISTS hopper_hopper_test");
                 return true;
             });
 

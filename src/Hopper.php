@@ -19,7 +19,7 @@ class Hopper
 
     public function to(string $database)
     {
-        $this->engine->use($database == self::DEFAULT ? Engine::DEFAULT : $database);
+        $this->engine->use($this->resolveDatabaseName($database));
         $this->boot();
     }
 
@@ -30,7 +30,12 @@ class Hopper
 
     public function delete(string $database)
     {
-        $this->engine->delete($database);
+        $this->engine->delete($this->resolveDatabaseName($database));
+    }
+
+    protected function resolveDatabaseName($database)
+    {
+        return $database == self::DEFAULT ? Engine::DEFAULT : $database;
     }
 
     public function handlePostCreation(?Command $command = null)

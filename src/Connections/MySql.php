@@ -22,7 +22,7 @@ class MySql implements Connection
 
     public function create(string $name)
     {
-        DB::raw("CREATE DATABASE IF NOT EXISTS ?", [$this->database($name)]);
+        DB::statement("CREATE DATABASE IF NOT EXISTS {$this->database($name)}");
     }
 
     public function exists(string $name): bool
@@ -32,7 +32,7 @@ class MySql implements Connection
 
     public function delete(string $name): bool
     {
-        DB::raw("DROP DATABASE IF EXISTS ?", [$this->database($name)]);
+        DB::statement("DROP DATABASE IF EXISTS {$this->database($name)}");
 
         return true;
     }
