@@ -1,9 +1,13 @@
 {
     "name": "nedwors/hopper",
-    "description": "",
+    "description": "Hopper lets you move between your local Laravel databases with ease, preserving data and easing development",
     "keywords": [
         "nedwors",
-        "hopper"
+        "hopper",
+        "database",
+        "laravel",
+        "sqlite",
+        "mysql"
     ],
     "homepage": "https://github.com/nedwors/hopper",
     "license": "MIT",
@@ -49,7 +53,7 @@
                 "Nedwors\\Hopper\\HopperServiceProvider"
             ],
             "aliases": {
-                "Hopper": "Nedwors\\Hopper\\HopperFacade"
+                "Hop": "Nedwors\\Hopper\\Facades\\Hop"
             }
         }
     }

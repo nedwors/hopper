@@ -2,9 +2,9 @@
 
 namespace Nedwors\Hopper\Connections;
 
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use Nedwors\Hopper\Contracts\Connection;
-use Illuminate\Support\Str;
 
 class Sqlite implements Connection
 {
@@ -40,9 +40,7 @@ class Sqlite implements Connection
 
     public function boot()
     {
-        if (!File::exists($hopperDirectory = database_path($this->hopperDirectory()))) {
-            File::makeDirectory($hopperDirectory);
-        }
+        File::ensureDirectoryExists(database_path($this->hopperDirectory()));
     }
 
     protected function hopperDirectory()

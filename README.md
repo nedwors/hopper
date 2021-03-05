@@ -281,12 +281,6 @@ Closures can also be defined:
 ```
 > All steps are run in order of declaration, so ensure you `migrate` your database before any seeders!
 
-### Testing
-
-``` bash
-composer test
-```
-
 ### Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.

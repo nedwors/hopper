@@ -2,11 +2,10 @@
 
 namespace Nedwors\Hopper\Tests\Console;
 
-use Nedwors\Hopper\Contracts\Filer;
 use Nedwors\Hopper\Database;
-use Nedwors\Hopper\Exceptions\NoConnectionException;
 use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Tests\TestCase;
+use Nedwors\Hopper\Exceptions\NoConnectionException;
 
 class CurrentCommandTest extends TestCase
 {

@@ -2,10 +2,10 @@
 
 namespace Nedwors\Hopper\Tests\Connections;
 
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\File;
-use Nedwors\Hopper\Connections\Sqlite;
 use Nedwors\Hopper\Tests\TestCase;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Config;
+use Nedwors\Hopper\Connections\Sqlite;
 
 class SqliteTest extends TestCase
 {
@@ -92,11 +92,7 @@ class SqliteTest extends TestCase
         Config::set('hopper.connections.sqlite.database-path', 'hopper/');
 
         File::partialMock()
-            ->shouldReceive('exists')
-            ->once()
-            ->withArgs([database_path('hopper/')])
-            ->andReturn(false)
-            ->shouldReceive('makeDirectory')
+            ->shouldReceive('ensureDirectoryExists')
             ->once()
             ->withArgs([database_path('hopper/')]);
 

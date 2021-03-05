@@ -2,10 +2,9 @@
 
 namespace Nedwors\Hopper\Tests\Hopper;
 
-use Nedwors\Hopper\Contracts\Engine;
-use Nedwors\Hopper\Facades\Git;
 use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Tests\TestCase;
+use Nedwors\Hopper\Contracts\Engine;
 
 class DeleteTest extends TestCase
 {

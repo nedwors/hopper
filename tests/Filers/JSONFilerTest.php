@@ -2,11 +2,11 @@
 
 namespace Nedwors\Hopper\Tests\Filers;
 
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use Nedwors\Hopper\Tests\TestCase;
 use Illuminate\Support\Facades\File;
 use Nedwors\Hopper\Filers\JsonFiler;
 use Nedwors\Hopper\Interfaces\Filer;
-use Nedwors\Hopper\Tests\TestCase;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class JsonFilerTest extends TestCase
 {

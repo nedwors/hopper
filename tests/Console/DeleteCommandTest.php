@@ -2,11 +2,11 @@
 
 namespace Nedwors\Hopper\Tests\Console;
 
+use Nedwors\Hopper\Facades\Hop;
+use Nedwors\Hopper\Tests\TestCase;
 use Nedwors\Hopper\Events\DatabaseDeleted;
 use Nedwors\Hopper\Events\DatabaseNotDeleted;
 use Nedwors\Hopper\Exceptions\NoConnectionException;
-use Nedwors\Hopper\Facades\Hop;
-use Nedwors\Hopper\Tests\TestCase;
 
 class DeleteCommandTest extends TestCase
 {

@@ -2,11 +2,11 @@
 
 namespace Nedwors\Hopper\Tests\Hopper;
 
-use Illuminate\Support\Facades\Config;
-use Nedwors\Hopper\Contracts\BootCheck;
 use Nedwors\Hopper\Facades\Hop;
 use Nedwors\Hopper\Tests\TestCase;
 use Nedwors\Hopper\Contracts\Engine;
+use Illuminate\Support\Facades\Config;
+use Nedwors\Hopper\Contracts\BootCheck;
 
 class BootTest extends TestCase
 {

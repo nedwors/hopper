@@ -2,9 +2,8 @@
 
 namespace Nedwors\Hopper\Tests;
 
-use Illuminate\Support\Facades\Event;
-use Nedwors\Hopper\HopperServiceProvider;
 use Orchestra\Testbench;
+use Nedwors\Hopper\HopperServiceProvider;
 
 abstract class TestCase extends Testbench\TestCase
 {
@@ -19,6 +18,14 @@ abstract class TestCase extends Testbench\TestCase
     {
         return [
             HopperServiceProvider::class
+        ];
+    }
+
+    public function databaseConnectionDataProvider()
+    {
+        return [
+            ['sqlite', 'foobar', fn() => database_path('foobar.sqlite'), 'database'],
+            ['mysql', 'foobar', 'hopper_foobar', 'hopper'],
         ];
     }
 }
