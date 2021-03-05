@@ -47,8 +47,8 @@ a hop:publish
 
 Commands:
 - [hop](#hop)
-- [hop:current](#hop:current)
-- [hop:delete](#hop:delete)
+- [hop:current](#hopcurrent)
+- [hop:delete](#hopdelete)
 
 Configuration:
 - [Connections](#connections)
