@@ -39,11 +39,6 @@ class Engine implements Contracts\Engine
 
     public function use(string $database)
     {
-        $database = $database == self::DEFAULT
-            ? $this->defaultDatabase
-            : $this->swapForDefaultDatabaseIfDefaultGitBranch($database);
-
-
         $this->isDefault($database)
             ? $this->useDefault()
             : $this->useNonDefault($database);
@@ -82,10 +77,8 @@ class Engine implements Contracts\Engine
 
     public function delete(string $database)
     {
-        $database = $this->swapForDefaultDatabaseIfDefaultGitBranch($database);
-
         if ($this->isDefault($database)) {
-            DatabaseNotDeleted::dispatch($database, DatabaseNotDeleted::DEFAULT);
+            DatabaseNotDeleted::dispatch($this->defaultDatabase, DatabaseNotDeleted::DEFAULT);
             return;
         }
 
@@ -99,11 +92,6 @@ class Engine implements Contracts\Engine
         $this->connection->delete($database);
         DatabaseDeleted::dispatch($database);
         $this->use($this->defaultDatabase);
-    }
-
-    protected function swapForDefaultDatabaseIfDefaultGitBranch(string $database)
-    {
-        return $database === Git::default() ? $this->defaultDatabase : $database;
     }
 
     public function current(): ?Database
@@ -125,7 +113,11 @@ class Engine implements Contracts\Engine
 
     protected function isDefault(string $name)
     {
-        return $name === $this->defaultDatabase;
+        return in_array($name, [
+            $this->defaultDatabase,
+            self::DEFAULT,
+            Git::default()
+        ]);
     }
 
     protected function sanitize($database)
