@@ -135,9 +135,7 @@ You should define here the name of the default git branch in your project:
 ```php
 ...
 
-'default-branch' => [
-    'main'
-]
+'default-branch' => 'main'
 
 ...
 ```
