@@ -5,7 +5,7 @@ use Nedwors\Hopper\Connections\Sqlite;
 use Nedwors\Hopper\BootChecks\Environment;
 
 return [
-    'default-branch' => 'main',
+    'default-branch' => env('HOPPER_DEFAULT_BRANCH', 'main'),
 
     'connections' => [
         'sqlite' => [
