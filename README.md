@@ -43,7 +43,7 @@ Hopper comes with a config file for you to publish to `config/hopper.php`:
 ```bash
 a hop:publish
 ```
-> You don't need to publish the config file to use Hopper, but it is recommended. But no pressure. Honest.
+> You don't need to publish the config file to use Hopper, but it is recommended. But no pressure. Honest... See [configuration](#configuration) to see whether you want to for your project.
 
 ## Usage
 
@@ -129,17 +129,51 @@ php artisan hop:delete test
 When a database is deleted, you will be moved back to your default database.
 
 ### Configuration
+As stated in [setup](#setup), you don't need to publish the hopper config file to use Hopper. The config file is as so:
+
+```php
+return [
+
+    'default-branch' => env('HOPPER_DEFAULT_BRANCH', 'main'),
+
+    'connections' => [
+        'sqlite' => [
+            'driver' => Sqlite::class,
+            'database-path' => 'hopper/'
+        ],
+        'mysql' => [
+            'driver' => MySql::class,
+            'database-prefix' => 'hopper_'
+        ],
+    ],
+
+    'boot-checks' => [
+        Environment::class
+    ],
+
+    'post-creation-steps' => [
+        'migrate:fresh'
+    ]
+
+]
+```
+We'd encourage to checkout all the options described below to see if you want to publish it or not.
+
+
 ### Default Git Branch
 You should define here the name of the default git branch in your project:
 
 ```php
 ...
 
-'default-branch' => 'main'
+'default-branch' => env('HOPPER_DEFAULT_BRANCH', 'main')
 
 ...
 ```
 Now, every time you [hop](#hop) on this branch without arguments, your default database will be used automatically - rather than a database called `main`.
+
+You'll see that there is a `HOPPER_DEFAULT_BRANCH` `.env` variable available too - this means you can alter this value without publishing the config file.
+
 ### Connections
 Currently, Hopper has built in support for `sqlite` and `mysql` database connections. Hopper will automatically use whichever connection you are using.
 
@@ -189,6 +223,9 @@ php artisan hop test
 > The `hopper` directory will be created by Hopper if it doesn't already exist
 
 > All database names passed to hopper when using Sqlite will be sanitized. Slashes will be automatically converted to dashes for the Sqlite connection. So for instance, `hop this/database` will create a database called `this-database.sqlite`
+
+> It's probably worth adding your chosen directory to your `.gitignore` when using the `sqlite` connection!
+
 #### MySql
 Hopper creates all MySql databases on your configured MySql connection. All databases created will have a prefix applied to their name so you can easily identify them as needed. You can configure the prefix in the config file:
 ```php
