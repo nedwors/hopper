@@ -132,8 +132,6 @@ When a database is deleted, you will be moved back to your default database.
 As stated in [setup](#setup), you don't need to publish the hopper config file to use Hopper. The config file is as so:
 
 ```php
-return [
-
     'default-branch' => env('HOPPER_DEFAULT_BRANCH', 'main'),
 
     'connections' => [
@@ -154,8 +152,6 @@ return [
     'post-creation-steps' => [
         'migrate:fresh'
     ]
-
-]
 ```
 We'd encourage to checkout all the options described below to see if you want to publish it or not.
 
