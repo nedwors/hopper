@@ -132,26 +132,26 @@ When a database is deleted, you will be moved back to your default database.
 As stated in [setup](#setup), you don't need to publish the hopper config file to use Hopper. The config file is as so:
 
 ```php
-    'default-branch' => env('HOPPER_DEFAULT_BRANCH', 'main'),
+'default-branch' => env('HOPPER_DEFAULT_BRANCH', 'main'),
 
-    'connections' => [
-        'sqlite' => [
-            'driver' => Sqlite::class,
-            'database-path' => 'hopper/'
-        ],
-        'mysql' => [
-            'driver' => MySql::class,
-            'database-prefix' => 'hopper_'
-        ],
+'connections' => [
+    'sqlite' => [
+        'driver' => Sqlite::class,
+        'database-path' => 'hopper/'
     ],
-
-    'boot-checks' => [
-        Environment::class
+    'mysql' => [
+        'driver' => MySql::class,
+        'database-prefix' => 'hopper_'
     ],
+],
 
-    'post-creation-steps' => [
-        'migrate:fresh'
-    ]
+'boot-checks' => [
+    Environment::class
+],
+
+'post-creation-steps' => [
+    'migrate:fresh'
+]
 ```
 We'd encourage to checkout all the options described below to see if you want to publish it or not.
 
