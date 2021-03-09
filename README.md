@@ -41,7 +41,7 @@ composer require nedwors/hopper --dev
 Hopper comes with a config file for you to publish to `config/hopper.php`:
 
 ```bash
-a hop:publish
+php artisan hop:publish
 ```
 > You don't need to publish the config file to use Hopper, but it is recommended. But no pressure. Honest... See [configuration](#configuration) to see whether you want to for your project.
 
